@@ -1,4 +1,6 @@
+# =========================
 # Python
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -10,8 +12,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -20,12 +20,19 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Python virtual environments
 .venv/
 venv/
 ENV/
 env/
+.venv/lib/
+venv/lib/
+lib64/
 
-# Node.js
+# =========================
+# Node.js / Next.js
+# =========================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -33,45 +40,54 @@ yarn-error.log*
 .pnpm-debug.log*
 .next/
 out/
-build/
 dist/
 
+# =========================
 # Environment variables
+# =========================
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
 *.env
 
-# IDEs
+# =========================
+# IDEs / OS
+# =========================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
+Thumbs.db
 
-# Testing
+# =========================
+# Testing / Coverage
+# =========================
 coverage/
 .pytest_cache/
 .coverage
 htmlcov/
 
+# =========================
 # Database
+# =========================
 *.db
 *.sqlite
 *.sqlite3
 
+# =========================
 # Logs
+# =========================
 *.log
 logs/
 
+# =========================
 # Alembic
+# =========================
 alembic/versions/*.pyc
 
+# =========================
 # Temporary files
+# =========================
 *.tmp
 *.bak
-*.swp
-Thumbs.db
