@@ -1,8 +1,13 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { auth, AuthSession, initAuthSession } from '@/lib/auth';
-
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { auth, AuthSession, initAuthSession } from "../lib/auth";
 interface AuthContextType {
   session: AuthSession;
   isLoading: boolean;
@@ -12,7 +17,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<AuthSession>({ token: null, user: null });
+  const [session, setSession] = useState<AuthSession>({
+    token: null,
+    user: null,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshSession = async () => {
@@ -38,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

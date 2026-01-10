@@ -4,8 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
-import { fadeInUp } from "@/lib/animations";
-
+import { fadeInUp } from "../../lib/animations";
 export default function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const floatingRef1 = useRef<HTMLDivElement>(null);
