@@ -1,0 +1,611 @@
+openapi: 3.0.3
+info:
+  title: Phase II Todo Web App - API Reference
+  description: |
+    Complete API reference for the Full-Stack Todo Web Application.
+    This document references existing endpoints from Specs 1 (Task CRUD) and 2 (Authentication & API Security).
+
+    **Base URL**: http://localhost:8000
+
+    **Authentication**: All task endpoints require JWT Bearer token in Authorization header.
+
+    **Note**: This is a reference document for integration purposes. No new endpoints are introduced in Spec 002.
+  version: 1.0.0
+  contact:
+    name: Phase II Todo Web App
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: User signup, signin, and profile endpoints (Spec 2)
+  - name: Tasks
+    description: Task CRUD operations (Spec 1)
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/auth/signup:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user account
+      description: Creates a new user account with email, password, and name. Password is hashed with bcrypt before storage.
+      operationId: signup
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+            example:
+              email: user@example.com
+              password: SecurePass123
+              name: John Doe
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponse'
+              example:
+                id: 1
+                email: user@example.com
+                name: John Doe
+                created_at: "2026-01-09T10:00:00Z"
+        '400':
+          description: Validation error (invalid email, weak password)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: Password must be at least 8 characters with uppercase, lowercase, and number
+                error_code: VALIDATION_ERROR
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: Email already registered
+                error_code: EMAIL_EXISTS
+
+  /api/auth/signin:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user and issue JWT token
+      description: Verifies email and password, returns JWT token with 7-day expiration.
+      operationId: signin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninRequest'
+            example:
+              email: user@example.com
+              password: SecurePass123
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              example:
+                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                token_type: bearer
+                expires_in: 604800
+                user:
+                  id: 1
+                  email: user@example.com
+                  name: John Doe
+                  created_at: "2026-01-09T10:00:00Z"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: Invalid email or password
+                error_code: INVALID_CREDENTIALS
+
+  /api/auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user profile
+      description: Returns profile information for the authenticated user.
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+              example:
+                id: 1
+                email: user@example.com
+                name: John Doe
+                created_at: "2026-01-09T10:00:00Z"
+        '401':
+          description: Not authenticated or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: Not authenticated
+                error_code: TOKEN_MISSING
+
+  /api/tasks:
+    get:
+      tags:
+        - Tasks
+      summary: List user's tasks with filtering and sorting
+      description: Returns all tasks for the authenticated user. Supports filtering by completion status and sorting.
+      operationId: getTasks
+      parameters:
+        - name: completed
+          in: query
+          description: Filter by completion status (true/false/null for all)
+          required: false
+          schema:
+            type: boolean
+            nullable: true
+        - name: sort
+          in: query
+          description: Sort field
+          required: false
+          schema:
+            type: string
+            enum: [created_at, updated_at]
+            default: created_at
+        - name: order
+          in: query
+          description: Sort order
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          description: Maximum number of results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          description: Number of results to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+              example:
+                tasks:
+                  - id: 1
+                    user_id: 1
+                    title: Buy groceries
+                    description: Milk, eggs, bread
+                    completed: false
+                    created_at: "2026-01-09T10:00:00Z"
+                    updated_at: "2026-01-09T10:00:00Z"
+                  - id: 2
+                    user_id: 1
+                    title: Finish project
+                    description: null
+                    completed: true
+                    created_at: "2026-01-08T15:30:00Z"
+                    updated_at: "2026-01-09T09:00:00Z"
+                total: 2
+                limit: 50
+                offset: 0
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      tags:
+        - Tasks
+      summary: Create new task
+      description: Creates a new task for the authenticated user.
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+            example:
+              title: Buy groceries
+              description: Milk, eggs, bread
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              example:
+                id: 1
+                user_id: 1
+                title: Buy groceries
+                description: Milk, eggs, bread
+                completed: false
+                created_at: "2026-01-09T10:00:00Z"
+                updated_at: "2026-01-09T10:00:00Z"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: Title is required
+                error_code: VALIDATION_ERROR
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/tasks/{task_id}:
+    get:
+      tags:
+        - Tasks
+      summary: Get single task
+      description: Returns a specific task if it belongs to the authenticated user.
+      operationId: getTask
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Task not found or doesn't belong to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: Task not found
+                error_code: NOT_FOUND
+
+    put:
+      tags:
+        - Tasks
+      summary: Update task (replace all fields)
+      description: Replaces all task fields. All fields are required.
+      operationId: updateTask
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+            example:
+              title: Buy groceries (updated)
+              description: Milk, eggs, bread, cheese
+              completed: false
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - Tasks
+      summary: Partially update task
+      description: Updates only the provided fields. Other fields remain unchanged.
+      operationId: patchTask
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskPatch'
+            example:
+              completed: true
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - Tasks
+      summary: Delete task
+      description: Permanently deletes a task if it belongs to the authenticated user.
+      operationId: deleteTask
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Task deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth/signin
+
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          description: Valid email address (RFC 5322)
+        password:
+          type: string
+          minLength: 8
+          maxLength: 100
+          description: Min 8 chars with uppercase, lowercase, and number
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: User's display name
+
+    SignupResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    SigninRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT token
+        token_type:
+          type: string
+          enum: [bearer]
+        expires_in:
+          type: integer
+          description: Token expiration in seconds (604800 = 7 days)
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        completed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TaskCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+
+    TaskUpdate:
+      type: object
+      required:
+        - title
+        - completed
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        completed:
+          type: boolean
+
+    TaskPatch:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        completed:
+          type: boolean
+
+    TaskListResponse:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message
+        error_code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - VALIDATION_ERROR
+            - EMAIL_EXISTS
+            - INVALID_CREDENTIALS
+            - TOKEN_MISSING
+            - TOKEN_EXPIRED
+            - TOKEN_INVALID
+            - NOT_FOUND
+        field_errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Field-specific validation errors
+
+  responses:
+    UnauthorizedError:
+      description: Not authenticated or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: Not authenticated
+            error_code: TOKEN_MISSING
+
+    NotFoundError:
+      description: Resource not found or doesn't belong to user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: Task not found
+            error_code: NOT_FOUND

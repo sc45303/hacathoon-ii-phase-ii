@@ -1,0 +1,476 @@
+openapi: 3.1.0
+info:
+  title: Task CRUD API
+  description: REST API for managing tasks in the Phase II Todo Web Application
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server
+
+tags:
+  - name: tasks
+    description: Task management operations
+
+paths:
+  /api/tasks:
+    get:
+      tags:
+        - tasks
+      summary: List all tasks for authenticated user
+      description: Retrieves all tasks belonging to the authenticated user with optional filtering and sorting
+      operationId: listTasks
+      parameters:
+        - name: completed
+          in: query
+          description: Filter by completion status
+          required: false
+          schema:
+            type: boolean
+            example: false
+        - name: sort
+          in: query
+          description: Sort order (created_at_desc, created_at_asc)
+          required: false
+          schema:
+            type: string
+            enum: [created_at_desc, created_at_asc]
+            default: created_at_desc
+        - name: limit
+          in: query
+          description: Maximum number of tasks to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          description: Number of tasks to skip (for pagination)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful response with task list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          description: Unauthorized - missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags:
+        - tasks
+      summary: Create a new task
+      description: Creates a new task for the authenticated user
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized - missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /api/tasks/{task_id}:
+    get:
+      tags:
+        - tasks
+      summary: Get a specific task
+      description: Retrieves a single task by ID (must belong to authenticated user)
+      operationId: getTask
+      parameters:
+        - name: task_id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Successful response with task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '401':
+          description: Unauthorized - missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task not found or does not belong to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    put:
+      tags:
+        - tasks
+      summary: Update a task (full replacement)
+      description: Updates all fields of an existing task (must belong to authenticated user)
+      operationId: updateTask
+      parameters:
+        - name: task_id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized - missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task not found or does not belong to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    patch:
+      tags:
+        - tasks
+      summary: Partially update a task
+      description: Updates specific fields of an existing task (must belong to authenticated user)
+      operationId: patchTask
+      parameters:
+        - name: task_id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskPatch'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized - missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task not found or does not belong to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags:
+        - tasks
+      summary: Delete a task
+      description: Permanently deletes a task (must belong to authenticated user)
+      operationId: deleteTask
+      parameters:
+        - name: task_id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '204':
+          description: Task deleted successfully (no content)
+        '401':
+          description: Unauthorized - missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task not found or does not belong to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoint (Spec 2)
+
+  schemas:
+    TaskCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Task title (1-200 characters)
+          example: "Buy groceries"
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Optional task description (0-1000 characters)
+          example: "Milk, eggs, bread"
+
+    TaskUpdate:
+      type: object
+      required:
+        - title
+        - completed
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Task title (1-200 characters)
+          example: "Buy groceries and milk"
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Optional task description (0-1000 characters)
+          example: "Updated description"
+        completed:
+          type: boolean
+          description: Task completion status
+          example: false
+
+    TaskPatch:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Task title (1-200 characters)
+          example: "Buy groceries and milk"
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Optional task description (0-1000 characters)
+          example: "Updated description"
+        completed:
+          type: boolean
+          description: Task completion status
+          example: true
+
+    TaskResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - title
+        - completed
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          description: Unique task identifier
+          example: 1
+        user_id:
+          type: integer
+          description: ID of the user who owns this task
+          example: 42
+        title:
+          type: string
+          description: Task title
+          example: "Buy groceries"
+        description:
+          type: string
+          nullable: true
+          description: Task description
+          example: "Milk, eggs, bread"
+        completed:
+          type: boolean
+          description: Task completion status
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when task was created
+          example: "2026-01-08T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when task was last updated
+          example: "2026-01-08T10:00:00Z"
+
+    TaskListResponse:
+      type: object
+      required:
+        - tasks
+        - total
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskResponse'
+          description: Array of tasks
+        total:
+          type: integer
+          description: Total number of tasks (before pagination)
+          example: 1
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message
+          example: "Task not found"
+        error_code:
+          type: string
+          description: Machine-readable error code
+          example: "TASK_NOT_FOUND"
+
+    ValidationErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message
+          example: "Validation error"
+        error_code:
+          type: string
+          description: Machine-readable error code
+          example: "VALIDATION_ERROR"
+        field_errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Field-specific validation errors
+          example:
+            title:
+              - "Title must be between 1 and 200 characters"

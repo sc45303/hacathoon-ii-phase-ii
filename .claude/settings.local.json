@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git rev-parse:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(python -m alembic current:*)",
+      "Bash(powershell:*)",
+      "Bash(npm install:*)"
+    ]
+  }
+}

@@ -1,0 +1,321 @@
+# JWT Token Schema
+
+**Feature**: 001-auth-security
+**Date**: 2026-01-09
+
+## Overview
+
+This document defines the structure and validation rules for JWT tokens used in the authentication system. Tokens are issued by Better Auth on the frontend and verified by the FastAPI backend.
+
+## Token Structure
+
+### Header
+
+```json
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+
+| Field | Value | Description |
+|-------|-------|-------------|
+| alg | HS256 | HMAC with SHA-256 algorithm |
+| typ | JWT | Token type |
+
+### Payload (Claims)
+
+```json
+{
+  "sub": "1",
+  "email": "user@example.com",
+  "iat": 1704801600,
+  "exp": 1705406400,
+  "iss": "better-auth"
+}
+```
+
+| Claim | Type | Required | Description |
+|-------|------|----------|-------------|
+| sub | string | Yes | Subject - User ID (primary key from users table) |
+| email | string | Yes | User's email address |
+| iat | integer | Yes | Issued At - Unix timestamp when token was created |
+| exp | integer | Yes | Expiration - Unix timestamp when token expires (iat + 604800 seconds = 7 days) |
+| iss | string | Yes | Issuer - Always "better-auth" |
+
+### Signature
+
+The signature is created by:
+1. Encoding the header and payload as Base64URL
+2. Concatenating with a period: `{base64Header}.{base64Payload}`
+3. Signing with HMAC-SHA256 using BETTER_AUTH_SECRET
+4. Encoding the signature as Base64URL
+
+**Formula**: `HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), BETTER_AUTH_SECRET)`
+
+## Complete Token Format
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJ1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzA0ODAxNjAwLCJleHAiOjE3MDU0MDY0MDAsImlzcyI6ImJldHRlci1hdXRoIn0.signature_here
+```
+
+**Structure**: `{header}.{payload}.{signature}`
+
+## Validation Rules
+
+### Backend Verification Process
+
+1. **Extract Token**: Get token from `Authorization: Bearer {token}` header
+2. **Parse Token**: Split into header, payload, signature
+3. **Verify Signature**:
+   - Recompute signature using BETTER_AUTH_SECRET
+   - Compare with provided signature
+   - Reject if signatures don't match
+4. **Verify Expiration**:
+   - Check `exp` claim against current Unix timestamp
+   - Reject if `exp < current_time`
+5. **Verify Required Claims**:
+   - Ensure `sub`, `email`, `iat`, `exp`, `iss` are present
+   - Reject if any required claim is missing
+6. **Extract User ID**:
+   - Parse `sub` claim as integer
+   - Use as authenticated user ID for data filtering
+
+### Validation Checklist
+
+- [ ] Token format is valid (3 parts separated by periods)
+- [ ] Header contains correct algorithm (HS256)
+- [ ] Signature is valid (matches recomputed signature)
+- [ ] Token is not expired (exp > current_time)
+- [ ] All required claims are present
+- [ ] User ID (sub) is a valid integer
+- [ ] Email is a valid email format
+
+## Error Responses
+
+### Missing Token
+
+**HTTP Status**: 401 Unauthorized
+
+```json
+{
+  "detail": "Not authenticated",
+  "error_code": "TOKEN_MISSING"
+}
+```
+
+### Invalid Signature
+
+**HTTP Status**: 401 Unauthorized
+
+```json
+{
+  "detail": "Invalid token",
+  "error_code": "TOKEN_INVALID"
+}
+```
+
+### Expired Token
+
+**HTTP Status**: 401 Unauthorized
+
+```json
+{
+  "detail": "Token has expired",
+  "error_code": "TOKEN_EXPIRED"
+}
+```
+
+### Malformed Token
+
+**HTTP Status**: 401 Unauthorized
+
+```json
+{
+  "detail": "Invalid token format",
+  "error_code": "TOKEN_MALFORMED"
+}
+```
+
+### Missing Claims
+
+**HTTP Status**: 401 Unauthorized
+
+```json
+{
+  "detail": "Invalid token payload",
+  "error_code": "TOKEN_INVALID_PAYLOAD"
+}
+```
+
+## Security Considerations
+
+### Secret Management
+
+- **BETTER_AUTH_SECRET** must be:
+  - At least 32 characters long
+  - Cryptographically random
+  - Identical in frontend and backend
+  - Stored in environment variables (never committed to git)
+  - Rotated periodically in production
+
+### Token Lifetime
+
+- **Expiration**: 7 days (604800 seconds)
+- **Rationale**: Balances security with UX (no refresh tokens in this spec)
+- **Recommendation**: Implement refresh tokens in future iterations for shorter access token lifetime
+
+### Transport Security
+
+- **HTTPS Required**: Tokens must only be transmitted over HTTPS in production
+- **Header Only**: Tokens should never be in URL query parameters
+- **httpOnly Cookies**: Frontend stores tokens in httpOnly cookies to prevent XSS
+
+### Attack Mitigation
+
+| Attack | Mitigation |
+|--------|------------|
+| Token Theft | HTTPS only, httpOnly cookies |
+| Token Replay | Short expiration (7 days), HTTPS |
+| Signature Forgery | Strong secret (32+ chars), HS256 algorithm |
+| XSS | httpOnly cookies, CSP headers |
+| CSRF | SameSite cookie attribute, CORS configuration |
+
+## Implementation Examples
+
+### Backend Verification (Python/FastAPI)
+
+```python
+import jwt
+from datetime import datetime
+from fastapi import HTTPException, status
+
+def verify_jwt_token(token: str, secret: str) -> dict:
+    """
+    Verify JWT token and return payload.
+
+    Args:
+        token: JWT token string
+        secret: BETTER_AUTH_SECRET
+
+    Returns:
+        dict: Token payload with claims
+
+    Raises:
+        HTTPException: 401 if token is invalid or expired
+    """
+    try:
+        # Verify signature and decode
+        payload = jwt.decode(
+            token,
+            secret,
+            algorithms=["HS256"],
+            options={
+                "verify_signature": True,
+                "verify_exp": True,
+                "require": ["sub", "email", "iat", "exp", "iss"]
+            }
+        )
+
+        # Validate issuer
+        if payload.get("iss") != "better-auth":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token issuer"
+            )
+
+        return payload
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+```
+
+### Frontend Token Inclusion (TypeScript)
+
+```typescript
+// Automatically include token in API requests
+async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const session = await auth() // Better Auth session
+  const token = session?.token
+
+  if (!token) {
+    throw new Error('Not authenticated')
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      ...options.headers,
+    },
+  })
+
+  if (response.status === 401) {
+    // Token expired or invalid - redirect to login
+    window.location.href = '/auth/signin'
+    throw new Error('Authentication required')
+  }
+
+  return response.json()
+}
+```
+
+## Testing Checklist
+
+- [ ] Valid token with correct signature is accepted
+- [ ] Expired token is rejected with 401
+- [ ] Token with invalid signature is rejected with 401
+- [ ] Token with missing claims is rejected with 401
+- [ ] Token with wrong algorithm is rejected with 401
+- [ ] Request without token is rejected with 401
+- [ ] Malformed token (not 3 parts) is rejected with 401
+- [ ] Token with non-integer user ID is rejected with 401
+
+## Token Lifecycle
+
+```
+1. User Sign In
+   ↓
+2. Better Auth validates credentials
+   ↓
+3. Better Auth creates JWT with user claims
+   ↓
+4. Better Auth signs JWT with BETTER_AUTH_SECRET
+   ↓
+5. Frontend receives token
+   ↓
+6. Frontend stores token in httpOnly cookie
+   ↓
+7. Frontend includes token in API requests
+   ↓
+8. Backend extracts token from Authorization header
+   ↓
+9. Backend verifies signature and expiration
+   ↓
+10. Backend extracts user_id from 'sub' claim
+   ↓
+11. Backend filters data by user_id
+   ↓
+12. Token expires after 7 days
+   ↓
+13. User must sign in again
+```
+
+## Future Enhancements (Out of Scope)
+
+- Refresh tokens for shorter access token lifetime
+- Token revocation/blacklist mechanism
+- Multiple device session management
+- Token rotation on refresh
+- Asymmetric signing (RS256) for microservices
