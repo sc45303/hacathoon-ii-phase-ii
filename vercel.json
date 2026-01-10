@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "buildCommand": "cd frontend && npm install && npm run build",
-=======
-  "buildCommand": "npm run build",
->>>>>>> 2ae9ace2888ddd23c8e47e7abb8cc61c9af1864b
   "outputDirectory": "frontend/.next",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
