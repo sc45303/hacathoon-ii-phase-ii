@@ -36,6 +36,26 @@ export function AppShell({ children }: AppShellProps) {
       </a>
 
       {/* Top Navbar */}
+      <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm backdrop-blur-sm bg-white/95 dark:bg-gray-900/95">
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          {/* Left: Hamburger Menu (Mobile) + Logo */}
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={toggleMobileNav}
+              className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-todoist-red transition-colors duration-200 md:hidden"
+              aria-label="Toggle menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Logo */}
+          </div>
+
+          {/* Right: Theme Toggle */}
+          <div className="flex items-center">{/* <ThemeToggle /> */}</div>
+        </div>
+      </header>
 
       {/* Main Layout */}
       <div className="flex h-[calc(100vh-4rem)]">

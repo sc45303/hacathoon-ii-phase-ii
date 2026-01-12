@@ -131,7 +131,7 @@ export default function Navbar() {
               animate="visible"
               exit="exit"
               onClick={closeMobileMenu}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+              className=""
             />
 
             {/* Mobile Menu Panel */}
@@ -140,7 +140,7 @@ export default function Navbar() {
               initial="closed"
               animate="open"
               exit="closed"
-              className="fixed top-0 right-0 bottom-0 w-64 bg-white dark:bg-gray-900 shadow-2xl z-50 md:hidden"
+              className=""
             >
               <div className="flex flex-col h-full">
                 {/* Close Button */}

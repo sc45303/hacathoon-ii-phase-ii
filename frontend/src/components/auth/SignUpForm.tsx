@@ -1,133 +1,146 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FloatingInput } from './FloatingInput';
-import { PasswordStrength } from './PasswordStrength';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FloatingInput } from "./FloatingInput";
+import { PasswordStrength } from "./PasswordStrength";
 import {
   validateEmail,
   validatePassword,
   validateName,
   validatePasswordMatch,
-} from './FormValidation';
-import { User, Mail, Lock } from 'lucide-react';
-import { staggerContainer, staggerItem } from '@/lib/animations';
+} from "./FormValidation";
+import { User, Mail, Lock } from "lucide-react";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 
 interface SignUpFormProps {
   onSuccess?: () => void;
 }
 
 export default function SignUpForm({ onSuccess }: SignUpFormProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  const [nameError, setNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
-  const [error, setError] = useState('');
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Check for reduced motion preference
-  const prefersReducedMotion = typeof window !== 'undefined'
-    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
+  const prefersReducedMotion =
+    typeof window !== "undefined"
+      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
-    setNameError('');
-    setError('');
+    setNameError("");
+    setError("");
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
-    setEmailError('');
-    setError('');
+    setEmailError("");
+    setError("");
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
-    setPasswordError('');
-    setError('');
+    setPasswordError("");
+    setError("");
   };
 
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setConfirmPassword(e.target.value);
-    setConfirmPasswordError('');
-    setError('');
+    setConfirmPasswordError("");
+    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setNameError('');
-    setEmailError('');
-    setPasswordError('');
-    setConfirmPasswordError('');
+    setError("");
+    setNameError("");
+    setEmailError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
 
     // Validate all fields
     const nameValidation = validateName(name);
     if (!nameValidation.isValid) {
-      setNameError(nameValidation.error || '');
+      setNameError(nameValidation.error || "");
       return;
     }
 
     const emailValidation = validateEmail(email);
     if (!emailValidation.isValid) {
-      setEmailError(emailValidation.error || '');
+      setEmailError(emailValidation.error || "");
       return;
     }
 
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
-      setPasswordError(passwordValidation.error || '');
+      setPasswordError(passwordValidation.error || "");
       return;
     }
 
-    const passwordMatchValidation = validatePasswordMatch(password, confirmPassword);
+    const passwordMatchValidation = validatePasswordMatch(
+      password,
+      confirmPassword
+    );
     if (!passwordMatchValidation.isValid) {
-      setConfirmPasswordError(passwordMatchValidation.error || '');
+      setConfirmPasswordError(passwordMatchValidation.error || "");
       return;
     }
 
     if (!acceptTerms) {
-      setError('You must accept the Terms and Conditions');
+      setError("You must accept the Terms and Conditions");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, name }),
-      });
+      const response = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+        }/api/auth/signup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, name }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Signup failed');
+        throw new Error(errorData.detail || "Signup failed");
       }
 
       const data = await response.json();
 
       // Clear form
-      setName('');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
       setAcceptTerms(false);
 
       if (onSuccess) {
         onSuccess();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during signup');
+      setError(
+        err instanceof Error ? err.message : "An error occurred during signup"
+      );
     } finally {
       setLoading(false);
     }
@@ -150,7 +163,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
           value={name}
           onChange={handleNameChange}
           error={nameError}
-          icon={<User className="w-5 h-5" />}
+          icon={<User className="w-5 h-5 text-indigo-950" />}
           iconPosition="left"
           required
           autoComplete="name"
@@ -166,7 +179,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
           value={email}
           onChange={handleEmailChange}
           error={emailError}
-          icon={<Mail className="w-5 h-5" />}
+          icon={<Mail className="w-5 h-5 text-indigo-950" />}
           iconPosition="left"
           required
           autoComplete="email"
@@ -182,7 +195,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
           value={password}
           onChange={handlePasswordChange}
           error={passwordError}
-          icon={<Lock className="w-5 h-5" />}
+          icon={<Lock className="w-5 h-5 text-indigo-950" />}
           iconPosition="left"
           required
           autoComplete="new-password"
@@ -213,7 +226,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
           onChange={handleConfirmPasswordChange}
           error={confirmPasswordError}
           success={confirmPassword.length > 0 && password === confirmPassword}
-          icon={<Lock className="w-5 h-5" />}
+          icon={<Lock className="w-5 h-5 text-indigo-950" />}
           iconPosition="left"
           required
           autoComplete="new-password"
@@ -236,7 +249,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
             whileTap={prefersReducedMotion ? {} : { scale: 0.9 }}
           />
           <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">
-            I agree to the{' '}
+            I agree to the{" "}
             <a
               href="/terms"
               target="_blank"
@@ -244,8 +257,8 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
               className="text-indigo-600 hover:text-indigo-500 font-medium underline"
             >
               Terms and Conditions
-            </a>{' '}
-            and{' '}
+            </a>{" "}
+            and{" "}
             <a
               href="/privacy"
               target="_blank"
@@ -277,9 +290,15 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ duration: 0.3, type: "spring" }}
               >
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </motion.svg>
-              <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>
+              <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                {error}
+              </p>
             </div>
           </motion.div>
         )}
@@ -290,8 +309,18 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
         type="submit"
         disabled={loading}
         variants={staggerItem}
-        whileHover={!loading && !prefersReducedMotion ? { scale: 1.02, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" } : undefined}
-        whileTap={!loading && !prefersReducedMotion ? { scale: 0.98 } : undefined}
+        whileHover={
+          !loading && !prefersReducedMotion
+            ? {
+                scale: 1.02,
+                boxShadow:
+                  "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              }
+            : undefined
+        }
+        whileTap={
+          !loading && !prefersReducedMotion ? { scale: 0.98 } : undefined
+        }
         className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 px-6 rounded-xl font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed shadow-xl relative overflow-hidden"
         transition={{ duration: 0.2 }}
       >
@@ -320,8 +349,19 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </motion.svg>
                 Creating account...
               </motion.span>
