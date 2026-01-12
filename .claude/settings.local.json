@@ -5,7 +5,15 @@
       "Bash(powershell.exe:*)",
       "Bash(python -m alembic current:*)",
       "Bash(powershell:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(dir:*)",
+      "Bash(npx shadcn@latest init:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build)",
+      "Bash(npm run lint)",
+      "Bash(timeout:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

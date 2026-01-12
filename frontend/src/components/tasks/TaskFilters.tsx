@@ -1,6 +1,10 @@
 'use client';
 
+import { Filter, ArrowUpDown } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { TaskFilters as TaskFiltersType } from '@/lib/api';
+import { fadeInUp, buttonVariants } from '@/lib/animations';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface TaskFiltersProps {
   filters: TaskFiltersType;
@@ -8,6 +12,8 @@ interface TaskFiltersProps {
 }
 
 export default function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   const handleCompletedChange = (value: string) => {
     let completed: boolean | null = null;
     if (value === 'completed') completed = true;
@@ -31,71 +37,85 @@ export default function TaskFilters({ filters, onFiltersChange }: TaskFiltersPro
     return `${filters.sort || 'created_at'}-${filters.order || 'desc'}`;
   };
 
-  return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-      <div className="flex items-center space-x-3 mb-5">
-        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-md">
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-          </svg>
-        </div>
-        <h3 className="text-lg font-bold text-gray-900">Filters & Sort</h3>
-      </div>
+  // Icon animation variants
+  const iconVariants = {
+    rest: { rotate: 0, scale: 1 },
+    hover: {
+      rotate: prefersReducedMotion ? 0 : 15,
+      scale: prefersReducedMotion ? 1 : 1.1,
+      transition: { duration: 0.2 }
+    }
+  };
 
-      <div className="space-y-4">
-        <div>
-          <label htmlFor="filter-status" className="block text-sm font-semibold text-gray-700 mb-2">
-            <span className="flex items-center">
-              <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Status
-            </span>
-          </label>
-          <select
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={prefersReducedMotion ? undefined : fadeInUp}
+      className="rounded-2xl p-6 bg-white/70 dark:bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl"
+    >
+      <div className="flex flex-wrap items-center gap-4">
+        {/* Status Filter */}
+        <motion.div
+          className="flex items-center gap-3 group"
+          initial="rest"
+          whileHover="hover"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+            <motion.div variants={iconVariants}>
+              <Filter className="w-5 h-5 text-white" />
+            </motion.div>
+          </div>
+          <motion.select
             id="filter-status"
             value={getCurrentCompletedValue()}
             onChange={(e) => handleCompletedChange(e.target.value)}
-            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white cursor-pointer appearance-none bg-no-repeat bg-right pr-10"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-              backgroundPosition: 'right 0.5rem center',
-              backgroundSize: '1.5em 1.5em'
-            }}
+            whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="px-4 py-2.5 text-sm font-semibold border border-white/20
+            bg-white/50 dark:bg-white/5 backdrop-blur text-foreground
+            rounded-xl shadow-md hover:bg-white/70 dark:hover:bg-white/10
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+            transition-all duration-200 cursor-pointer"
           >
             <option value="all">All Tasks</option>
             <option value="active">Active</option>
             <option value="completed">Completed</option>
-          </select>
-        </div>
+          </motion.select>
+        </motion.div>
 
-        <div>
-          <label htmlFor="sort-by" className="block text-sm font-semibold text-gray-700 mb-2">
-            <span className="flex items-center">
-              <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              </svg>
-              Sort By
-            </span>
-          </label>
-          <select
+        {/* Sort Filter */}
+        <motion.div
+          className="flex items-center gap-3 group"
+          initial="rest"
+          whileHover="hover"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-lg">
+            <motion.div variants={iconVariants}>
+              <ArrowUpDown className="w-5 h-5 text-white" />
+            </motion.div>
+          </div>
+          <motion.select
             id="sort-by"
             value={getCurrentSortValue()}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white cursor-pointer appearance-none bg-no-repeat bg-right pr-10"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-              backgroundPosition: 'right 0.5rem center',
-              backgroundSize: '1.5em 1.5em'
-            }}
+            whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="px-4 py-2.5 text-sm font-semibold border border-white/20
+            bg-white/50 dark:bg-white/5 backdrop-blur text-foreground
+            rounded-xl shadow-md hover:bg-white/70 dark:hover:bg-white/10
+            focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
+            transition-all duration-200 cursor-pointer"
           >
             <option value="created_at-desc">Newest First</option>
             <option value="created_at-asc">Oldest First</option>
             <option value="updated_at-desc">Recently Updated</option>
             <option value="updated_at-asc">Least Recently Updated</option>
-          </select>
-        </div>
+          </motion.select>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

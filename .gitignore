@@ -48,6 +48,10 @@ dist/
 .env
 .env.*
 *.env
+nul
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
 
 # =========================
 # IDEs / OS

@@ -213,12 +213,192 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 
 For this Phase II Full-Stack Todo Web Application project, use the following specialized agents based on task type:
 
-| Task Type | Agent to Use | Examples |
-|-----------|--------------|----------|
-| Authentication (signup, signin, JWT, sessions) | **Auth Agent** | Better Auth integration, token validation, session management |
-| Frontend UI/UX | **Frontend Agent** | Next.js 16+ (App Router), React components, responsive layouts |
-| Database design & operations | **DB Agent** | Schema design, migrations, queries, Neon PostgreSQL |
-| API development | **Backend Agent** | FastAPI endpoints, Pydantic models, SQLModel ORM |
+| Task Type | Agent to Use | Skill to Use | Examples |
+|-----------|--------------|--------------|----------|
+| Authentication (signup, signin, JWT, sessions) | **Auth Agent** | `auth-skill` | Better Auth integration, token validation, session management |
+| UI Layout & Responsiveness | **UI Layout & Responsiveness Agent** | `responsive-layouts` | Responsive layouts, page structure, grids, navigation, breakpoints |
+| Design & Theme | **Design & Theme Agent** | `design-theme` | Colors, themes, spacing, visual hierarchy, typography consistency, light/dark mode |
+| Animations & Motion | **Animations & Motion Agent** | `animations-motion` | UI motion, page transitions, button animations, task interactions, modals, feedback animations |
+| Typography & Text Effects | **Typography & Text Effects Agent** | `typography-text-effects` | Font systems, text hierarchy, readability, micro-animations on text elements |
+| UI Libraries & Components | **UI Libraries & Components Agent** | `ui-libraries-components` | Selecting, integrating, and standardizing UI libraries and reusable components |
+| Accessibility & UX Audit | **Accessibility & UX Audit Agent** | `accessibility-ux-audit` | WCAG compliance, keyboard navigation, contrast ratios, ARIA usage, usability audits |
+| Database design & operations | **DB Agent** | `database-schema` | Schema design, migrations, queries, Neon PostgreSQL |
+| API development | **Backend Agent** | `backend-api-core` | FastAPI endpoints, Pydantic models, SQLModel ORM |
+
+## Frontend UI/UX Agent System (Mandatory)
+
+Frontend UI/UX work is no longer treated as a single generic "Frontend Agent", but as a **coordinated system of specialized UI/UX agents**. Each agent has a clearly defined responsibility and is **mandatory** to use for its respective scope.
+
+### Agent Definitions and Responsibilities
+
+#### 1. UI Layout & Responsiveness Agent
+**Responsibility:** All responsive layouts, page structure, grids, navigation behavior, and breakpoint handling.
+
+**Mandatory Skill:** `responsive-layouts`
+
+**Scope:**
+- Responsive page layouts for all screen sizes (mobile, tablet, desktop)
+- Grid systems and flexbox layouts
+- Navigation components and behavior across breakpoints
+- Container structures and spacing systems
+- Media query implementation and breakpoint management
+
+**Usage:** Must be invoked for any work involving page structure, layout systems, or responsive design patterns.
+
+#### 2. Design & Theme Agent
+**Responsibility:** Colors, themes, spacing, visual hierarchy, typography consistency, and light/dark mode coherence.
+
+**Mandatory Skill:** `design-theme`
+
+**Scope:**
+- Color palette definition and application
+- Theme system design (light/dark mode)
+- Spacing and sizing tokens
+- Visual hierarchy across components
+- Design system consistency
+- CSS variable management
+
+**Usage:** Must be invoked for any work involving visual design, theming, color schemes, or design system establishment.
+
+#### 3. Animations & Motion Agent
+**Responsibility:** UI motion, page transitions, button animations, task interactions, modals, and feedback animations.
+
+**Mandatory Skill:** `animations-motion`
+
+**Scope:**
+- Button hover/click animations
+- Page and route transitions
+- Task CRUD operation animations (add, complete, delete)
+- Modal entrance/exit animations
+- Loading states and skeleton screens
+- Micro-interactions and feedback animations
+
+**Usage:** Must be invoked for any work involving motion, transitions, or interactive feedback animations.
+
+#### 4. Typography & Text Effects Agent
+**Responsibility:** Font systems, text hierarchy, readability, and micro-animations on text elements.
+
+**Mandatory Skill:** `typography-text-effects`
+
+**Scope:**
+- Font family selection and loading
+- Text size and weight hierarchy
+- Line height and letter spacing
+- Readability optimization
+- Text animations (fade-in, slide-in, etc.)
+- Heading and body text styling
+
+**Usage:** Must be invoked for any work involving text styling, font systems, or text-based animations.
+
+#### 5. UI Libraries & Components Agent
+**Responsibility:** Selecting, integrating, and standardizing UI libraries and reusable components.
+
+**Mandatory Skill:** `ui-libraries-components`
+
+**Scope:**
+- UI library evaluation and selection (Shadcn UI, Radix UI, etc.)
+- Component library integration
+- Reusable component architecture
+- Component API design
+- Library configuration and customization
+- Ensuring library compatibility with Next.js App Router and Tailwind CSS
+
+**Usage:** Must be invoked for any work involving UI library selection, component library integration, or reusable component design.
+
+#### 6. Accessibility & UX Audit Agent
+**Responsibility:** WCAG compliance, keyboard navigation, contrast ratios, ARIA usage, and usability audits.
+
+**Mandatory Skill:** `accessibility-ux-audit`
+
+**Scope:**
+- WCAG 2.1 AA/AAA compliance auditing
+- Keyboard navigation and focus management
+- Screen reader compatibility and ARIA attributes
+- Color contrast validation
+- Interactive element accessibility
+- Form accessibility and error handling
+- Usability testing and UX improvements
+
+**Usage:** Must be invoked after creating or modifying any interactive UI components to ensure accessibility compliance.
+
+### Enforcement Rules (Mandatory)
+
+#### Rule 1: Skill Execution is Required
+Claude **MUST** read and follow the relevant `SKILL.md` file before proposing or implementing UI changes. The skill file contains:
+- Detailed implementation guidelines
+- Technology-specific patterns
+- Best practices and anti-patterns
+- Acceptance criteria
+
+**Process:**
+1. Identify the UI concern (layout, theme, animation, typography, components, or accessibility)
+2. Select the appropriate agent and skill
+3. Read the corresponding `SKILL.md` file from `.specify/skills/<skill-name>/SKILL.md`
+4. Follow the skill's guidelines during implementation
+
+#### Rule 2: Agent and Skill References in Planning
+Claude **MUST** explicitly reference which agent and skill are being used in:
+- Planning phase (`/sp.plan`)
+- Task generation (`/sp.tasks`)
+- Implementation and execution stages
+
+**Format:**
+```
+Agent: [Agent Name]
+Skill: [skill-name]
+Responsibility: [Brief description]
+```
+
+#### Rule 3: No Responsibility Mixing
+Claude **MUST NOT** mix responsibilities between UI agents. Each agent operates within its defined scope:
+- Layout agent does NOT handle animations
+- Theme agent does NOT handle accessibility audits
+- Animation agent does NOT handle typography
+- Typography agent does NOT handle responsive layouts
+- Components agent does NOT handle theme design
+- Accessibility agent does NOT implement features (only audits)
+
+**Violation Example (Incorrect):**
+```
+Using Design & Theme Agent to implement responsive breakpoints
+```
+
+**Correct Approach:**
+```
+Using UI Layout & Responsiveness Agent for breakpoints
+Using Design & Theme Agent for color application within those breakpoints
+```
+
+#### Rule 4: Multi-Concern Task Sequencing
+If a task spans multiple UI concerns, Claude **MUST** sequence agents explicitly and document the execution order.
+
+**Example:**
+```
+Task: Create a new task card component with animations and accessibility
+
+Sequence:
+1. UI Libraries & Components Agent → Design reusable card component structure
+2. Design & Theme Agent → Apply theme colors, spacing, and visual hierarchy
+3. Typography & Text Effects Agent → Style text elements and hierarchy
+4. Animations & Motion Agent → Add hover and interaction animations
+5. Accessibility & UX Audit Agent → Audit and ensure WCAG compliance
+```
+
+#### Rule 5: Skill File Authority
+The `SKILL.md` file for each skill is the **authoritative source** for implementation patterns. If there is a conflict between:
+- Internal knowledge vs. Skill file → **Skill file wins**
+- General best practices vs. Skill file → **Skill file wins**
+- User request vs. Skill file safety/security rules → **Skill file wins** (inform user)
+
+#### Rule 6: Proactive Agent Invocation
+Claude should **proactively** invoke the appropriate UI/UX agent when:
+- A new UI component is created
+- An existing component is modified
+- A new page or route is added
+- Visual inconsistencies are detected
+- Accessibility concerns are identified
+
+Do not wait for explicit user requests to apply proper UI/UX practices.
 
 ### Technology Stack Reference
 
