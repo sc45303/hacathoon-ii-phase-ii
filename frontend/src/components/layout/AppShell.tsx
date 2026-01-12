@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu } from "lucide-react";
+import { Filter, SidebarIcon } from "lucide-react";
 // import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Sidebar } from "./Sidebar";
 import { MobileNav } from "./MobileNav";
@@ -43,10 +43,10 @@ export function AppShell({ children }: AppShellProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileNav}
-              className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-todoist-red transition-colors duration-200 md:hidden"
+              className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-200  transition-colors duration-200 md:hidden"
               aria-label="Toggle menu"
             >
-              <Menu className="w-5 h-5" />
+              <SidebarIcon className="w-5 h-5" />
             </button>
 
             {/* Logo */}
