@@ -10,6 +10,7 @@ export default function LandingPage() {
   return (
     <main>
       <Hero />
+
       <Features />
       <CallToAction />
     </main>

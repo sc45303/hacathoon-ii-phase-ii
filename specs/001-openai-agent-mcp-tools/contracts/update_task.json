@@ -1,0 +1,97 @@
+{
+  "name": "update_task",
+  "description": "Update an existing task's properties. Accepts either a task ID (integer) or task title (string) to identify the task, and a dictionary of fields to update.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "task_identifier": {
+        "oneOf": [
+          {
+            "type": "integer",
+            "description": "Task ID"
+          },
+          {
+            "type": "string",
+            "description": "Task title (exact match)"
+          }
+        ],
+        "description": "Task ID or title to identify which task to update"
+      },
+      "updates": {
+        "type": "object",
+        "description": "Dictionary of fields to update",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "New task title (max 200 characters)",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "description": "New task description (max 1000 characters)",
+            "maxLength": 1000
+          },
+          "due_date": {
+            "type": "string",
+            "description": "New due date in ISO 8601 format (YYYY-MM-DD)",
+            "format": "date"
+          },
+          "priority": {
+            "type": "string",
+            "description": "New priority level",
+            "enum": ["low", "medium", "high"]
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "New completion status"
+          }
+        },
+        "minProperties": 1
+      }
+    },
+    "required": ["task_identifier", "updates"]
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the task was updated successfully"
+      },
+      "task": {
+        "type": "object",
+        "description": "The updated task object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique task ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Task title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Task description"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "Task completion status"
+          },
+          "updated_at": {
+            "type": "string",
+            "description": "Task update timestamp"
+          }
+        }
+      },
+      "message": {
+        "type": "string",
+        "description": "User-friendly confirmation message"
+      },
+      "error": {
+        "type": "string",
+        "description": "Error message if task not found or operation failed"
+      }
+    }
+  }
+}

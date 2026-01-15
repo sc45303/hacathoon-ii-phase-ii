@@ -4,11 +4,15 @@ from datetime import datetime
 from typing import Optional
 
 
+
 class SignupRequest(BaseModel):
-    """Request schema for user signup."""
-    email: EmailStr = Field(..., description="User's email address")
-    password: str = Field(..., min_length=8, max_length=100, description="User's password")
-    name: str = Field(..., min_length=1, max_length=100, description="User's display name")
+    email: EmailStr
+    name: str
+    password: str = Field(
+        min_length=8,
+        max_length=72,
+        description="Password must be between 8 and 72 characters"
+    )
 
 
 class SigninRequest(BaseModel):

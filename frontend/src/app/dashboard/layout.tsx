@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
+import { useChat } from "@/providers/ChatProvider";
+import { useChatViewMode } from "@/hooks/useChatViewMode";
 import { AppShell } from "@/components/layout/AppShell";
 
 export default function DashboardLayout({
@@ -12,6 +14,13 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const { session, isLoading } = useAuth();
+  const { state, setViewMode } = useChat();
+  const viewMode = useChatViewMode();
+
+  // Update chat view mode when it changes
+  useEffect(() => {
+    setViewMode(viewMode);
+  }, [viewMode, setViewMode]);
 
   // Redirect to signin if not authenticated
   useEffect(() => {
@@ -39,5 +48,16 @@ export default function DashboardLayout({
     return null;
   }
 
-  return <AppShell>{children}</AppShell>;
+  // Adjust layout when chat sidebar is open on desktop
+  const shouldAdjustForSidebar = state.isOpen && state.viewMode === 'sidebar';
+
+  return (
+    <div
+      className={`transition-all duration-300 ${
+        shouldAdjustForSidebar ? 'mr-[400px]' : ''
+      }`}
+    >
+      <AppShell>{children}</AppShell>
+    </div>
+  );
 }

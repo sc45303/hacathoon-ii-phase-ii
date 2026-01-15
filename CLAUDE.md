@@ -224,6 +224,8 @@ For this Phase II Full-Stack Todo Web Application project, use the following spe
 | Accessibility & UX Audit | **Accessibility & UX Audit Agent** | `accessibility-ux-audit` | WCAG compliance, keyboard navigation, contrast ratios, ARIA usage, usability audits |
 | Database design & operations | **DB Agent** | `database-schema` | Schema design, migrations, queries, Neon PostgreSQL |
 | API development | **Backend Agent** | `backend-api-core` | FastAPI endpoints, Pydantic models, SQLModel ORM |
+| Backend systems & MCP tools | **Backend Systems Agent** | `backend-mcp-tools` | MCP server design, API architecture, database operations, error handling, CI/CD |
+| Conversational AI & agent design | **Conversational AI Architect Agent** | `agent-behavior-reasoning` | Agent workflows, intent detection, tool selection, multi-step reasoning, response validation |
 
 ## Frontend UI/UX Agent System (Mandatory)
 
@@ -416,3 +418,557 @@ Do not wait for explicit user requests to apply proper UI/UX practices.
 3. Backend receives request → Extracts and verifies token using shared secret
 4. Backend identifies user → Decodes token for user ID, email, etc.
 5. Backend filters data → Returns only tasks belonging to that user
+
+---
+
+## Backend Systems Agent (Mandatory)
+
+Backend systems work SHALL be handled exclusively by the **Backend Systems Agent**, which operates with strict adherence to the `backend-mcp-tools` skill. This agent is the authoritative handler for all server-side architecture, MCP tool design, API implementation, database operations, and backend infrastructure.
+
+### Agent Definition and Responsibilities
+
+**Agent Name:** Backend Systems Agent
+
+**Mandatory Skill:** `backend-mcp-tools`
+
+**Scope:**
+- MCP server design, implementation, and configuration
+- API architecture and endpoint design (RESTful, GraphQL, WebSocket)
+- Database schema design, migrations, and query optimization
+- Backend business logic and data validation
+- Authentication and authorization implementation (JWT verification, session management)
+- Error handling, logging, and monitoring systems
+- CI/CD pipeline configuration and deployment automation
+- Caching strategies (Redis, in-memory, CDN)
+- Background job processing (Celery, FastAPI BackgroundTasks)
+- Third-party service integrations (email, payments, analytics)
+- Performance optimization and scalability planning
+- Security implementation (input validation, SQL injection prevention, rate limiting)
+
+**Usage:** MUST be invoked for any work involving server-side logic, API design, database operations, MCP tool creation, or backend infrastructure.
+
+### Skill Enforcement (Mandatory)
+
+#### Rule 1: Skill Execution is Required
+Claude **MUST** read and follow the `backend-mcp-tools` skill file before proposing or implementing backend changes. The skill file is located at:
+- `.claude/skills/backend-mcp-tools/SKILL.md`
+
+**Process:**
+1. Identify the backend concern (API, database, MCP tool, authentication, etc.)
+2. Read the `backend-mcp-tools` SKILL.md file
+3. Follow the skill's process steps:
+   - Identify required capabilities
+   - Define tool contracts (inputs, outputs, validation)
+   - Implement backend logic with stateless operation
+   - Handle errors gracefully with clear messages
+   - Expose tools to agents via MCP registration
+   - Test tool reliability and edge cases
+4. Ensure all outputs follow the skill's output format (status, data payload, message)
+
+#### Rule 2: Agent and Skill References in Planning
+Claude **MUST** explicitly reference the Backend Systems Agent and `backend-mcp-tools` skill in:
+- Planning phase (`/sp.plan`)
+- Task generation (`/sp.tasks`)
+- Implementation and execution stages
+
+**Format:**
+```
+Agent: Backend Systems Agent
+Skill: backend-mcp-tools
+Responsibility: [Specific backend task description]
+```
+
+#### Rule 3: No Responsibility Mixing
+Claude **MUST NOT** mix backend responsibilities with other agents:
+- Backend Systems Agent does NOT handle frontend UI/UX concerns
+- Backend Systems Agent does NOT handle conversational AI agent design (use Conversational AI Architect Agent)
+- Frontend agents do NOT implement backend APIs or database logic
+- Database Agent (`database-schema` skill) focuses on schema design; Backend Systems Agent handles broader API and MCP concerns
+
+**Violation Example (Incorrect):**
+```
+Using Frontend UI Builder Agent to design API endpoints
+```
+
+**Correct Approach:**
+```
+Using Backend Systems Agent to design API endpoints
+Using Frontend UI Builder Agent to consume those endpoints in the UI
+```
+
+#### Rule 4: MCP Tool Design Authority
+The Backend Systems Agent is the **sole authority** for MCP tool design and implementation. All MCP tools MUST:
+- Follow the `backend-mcp-tools` skill process
+- Define clear contracts (tool name, inputs, outputs, validation rules)
+- Operate statelessly with explicit inputs
+- Return structured responses (status, data, message)
+- Handle errors gracefully with actionable error messages
+- Be tested for reliability, edge cases, and performance
+
+#### Rule 5: Proactive Agent Invocation
+Claude SHALL **proactively** invoke the Backend Systems Agent when:
+- A new feature requires API endpoints
+- Database schema changes are needed
+- Third-party service integration is required
+- Performance issues are detected in backend systems
+- MCP tools need to be created or modified
+- Authentication or authorization logic is needed
+- Background jobs or scheduled tasks are required
+- CI/CD pipeline changes are necessary
+
+Do not wait for explicit user requests to apply proper backend architecture practices.
+
+---
+
+## Conversational AI Architect Agent (Mandatory)
+
+Conversational AI and agent behavior design SHALL be handled exclusively by the **Conversational AI Architect Agent**, which operates with strict adherence to the `agent-behavior-reasoning` skill. This agent is the authoritative handler for all AI agent design, reasoning workflows, intent detection, tool selection logic, and response quality optimization.
+
+### Agent Definition and Responsibilities
+
+**Agent Name:** Conversational AI Architect Agent
+
+**Mandatory Skill:** `agent-behavior-reasoning`
+
+**Scope:**
+- AI agent personality, role, and responsibility definition
+- Multi-step reasoning and decision-making logic design
+- User intent detection and interpretation strategies
+- Tool selection logic and execution planning
+- Response clarity, consistency, and reliability optimization
+- Hallucination prevention and output validation
+- Context management and memory strategies
+- Multi-agent orchestration and coordination patterns
+- Conversation flow design and state machine architecture
+- Prompt engineering and optimization
+- Error recovery and fallback behavior design
+- Agent testing and quality assurance strategies
+
+**Usage:** MUST be invoked for any work involving AI agent design, conversational systems, chatbot implementation, agent reasoning workflows, or intelligent decision-making capabilities.
+
+### Skill Enforcement (Mandatory)
+
+#### Rule 1: Skill Execution is Required
+Claude **MUST** read and follow the `agent-behavior-reasoning` skill file before proposing or implementing conversational AI changes. The skill file is located at:
+- `.claude/skills/agent-behavior-reasoning/SKILL.md`
+
+**Process:**
+1. Identify the conversational AI concern (agent design, reasoning, intent detection, tool usage, etc.)
+2. Read the `agent-behavior-reasoning` SKILL.md file
+3. Follow the skill's process steps:
+   - Define agent role and scope
+   - Interpret user intent
+   - Plan reasoning steps
+   - Decide on tool usage
+   - Execute reasoning or tool calls
+   - Generate final response
+   - Validate output
+4. Ensure all outputs follow the skill's output format (intent summary, reasoning outcome, action taken, final response)
+
+#### Rule 2: Agent and Skill References in Planning
+Claude **MUST** explicitly reference the Conversational AI Architect Agent and `agent-behavior-reasoning` skill in:
+- Planning phase (`/sp.plan`)
+- Task generation (`/sp.tasks`)
+- Implementation and execution stages
+
+**Format:**
+```
+Agent: Conversational AI Architect Agent
+Skill: agent-behavior-reasoning
+Responsibility: [Specific conversational AI task description]
+```
+
+#### Rule 3: No Responsibility Mixing
+Claude **MUST NOT** mix conversational AI responsibilities with other agents:
+- Conversational AI Architect Agent does NOT implement backend APIs (use Backend Systems Agent)
+- Conversational AI Architect Agent does NOT design UI/UX (use Frontend UI/UX agents)
+- Backend Systems Agent does NOT design agent reasoning workflows (use Conversational AI Architect Agent)
+- Frontend agents do NOT design conversational AI logic
+
+**Violation Example (Incorrect):**
+```
+Using Backend Systems Agent to design chatbot conversation flows
+```
+
+**Correct Approach:**
+```
+Using Conversational AI Architect Agent to design conversation flows
+Using Backend Systems Agent to implement the APIs that support the chatbot
+```
+
+#### Rule 4: Reasoning Workflow Authority
+The Conversational AI Architect Agent is the **sole authority** for agent reasoning and decision-making design. All agent reasoning workflows MUST:
+- Follow the `agent-behavior-reasoning` skill process
+- Define clear agent roles and scope boundaries
+- Implement explicit intent detection strategies
+- Plan multi-step reasoning before execution
+- Validate outputs for correctness and relevance
+- Prevent hallucinations through structured validation
+- Handle ambiguity with clarifying questions
+
+#### Rule 5: Proactive Agent Invocation
+Claude SHALL **proactively** invoke the Conversational AI Architect Agent when:
+- A new AI agent or chatbot is being designed
+- Agent reasoning quality needs improvement
+- Intent detection is failing or ambiguous
+- Tool selection logic needs optimization
+- Multi-agent coordination is required
+- Conversation flows need to be designed or refactored
+- Response quality issues are detected
+- Context management strategies need improvement
+
+Do not wait for explicit user requests to apply proper conversational AI architecture practices.
+
+---
+
+## Agent-Skill Enforcement Matrix (Mandatory)
+
+This matrix defines the **authoritative** mapping between agents and their required skills. Failure to use the correct agent-skill pairing is considered a **specification violation**.
+
+| Agent | Required Skill | Responsibility Domain | Violation Consequence |
+|-------|----------------|----------------------|----------------------|
+| **UI Layout & Responsiveness Agent** | `responsive-layouts` | Page structure, grids, navigation, breakpoints | Spec violation; implementation rejected |
+| **Design & Theme Agent** | `design-theme` | Colors, themes, spacing, visual hierarchy, light/dark mode | Spec violation; implementation rejected |
+| **Animations & Motion Agent** | `animations-motion` | UI motion, transitions, button animations, modals | Spec violation; implementation rejected |
+| **Typography & Text Effects Agent** | `typography-text-effects` | Font systems, text hierarchy, readability, text animations | Spec violation; implementation rejected |
+| **UI Libraries & Components Agent** | `ui-libraries-components` | Library selection, component integration, reusable architecture | Spec violation; implementation rejected |
+| **Accessibility & UX Audit Agent** | `accessibility-ux-audit` | WCAG compliance, keyboard navigation, ARIA, contrast | Spec violation; implementation rejected |
+| **Auth Agent** | `auth-skill` | Authentication, signup, signin, JWT, sessions | Spec violation; implementation rejected |
+| **DB Agent** | `database-schema` | Schema design, migrations, queries | Spec violation; implementation rejected |
+| **Backend Agent** | `backend-api-core` | FastAPI endpoints, Pydantic models, SQLModel ORM | Spec violation; implementation rejected |
+| **Backend Systems Agent** | `backend-mcp-tools` | MCP tools, API architecture, database operations, CI/CD | Spec violation; implementation rejected |
+| **Conversational AI Architect Agent** | `agent-behavior-reasoning` | Agent design, reasoning workflows, intent detection, tool selection | Spec violation; implementation rejected |
+
+### Enforcement Rules
+
+#### Rule 1: Mandatory Skill Reading
+Before implementing ANY work within an agent's domain, Claude **MUST**:
+1. Identify the correct agent from the matrix above
+2. Read the corresponding SKILL.md file from `.claude/skills/<skill-name>/SKILL.md`
+3. Follow the skill's process steps exactly as documented
+4. Produce outputs in the skill's required format
+
+**Failure to read the skill file before implementation is a specification violation.**
+
+#### Rule 2: Explicit Agent-Skill Declaration
+In all planning documents (`spec.md`, `plan.md`, `tasks.md`) and implementation work, Claude **MUST** explicitly declare:
+```
+Agent: [Agent Name from Matrix]
+Skill: [Required Skill from Matrix]
+Process: [Reference to skill's process steps being followed]
+```
+
+**Failure to declare the agent-skill pairing is a specification violation.**
+
+#### Rule 3: Skill File Authority Hierarchy
+In case of conflicts, the following hierarchy applies (highest to lowest authority):
+1. **Skill File (SKILL.md)** - Authoritative source for implementation patterns
+2. **Agent Definition (.claude/agents/*.md)** - Defines agent scope and responsibilities
+3. **CLAUDE.md (this file)** - Defines enforcement rules and workflow
+4. **Internal Knowledge** - Lowest priority; only used when no other source exists
+
+**If a skill file contradicts internal knowledge, the skill file MUST be followed.**
+
+#### Rule 4: Cross-Agent Coordination
+When a task requires multiple agents:
+1. Identify all agents needed from the matrix
+2. Define explicit sequencing (which agent works first, second, etc.)
+3. Document handoff points between agents
+4. Ensure each agent stays within its responsibility domain
+5. Validate that no responsibilities are mixed or duplicated
+
+**Example:**
+```
+Task: Implement user authentication with UI
+
+Sequence:
+1. Auth Agent (auth-skill) → Implement Better Auth integration and JWT validation
+2. Backend Systems Agent (backend-mcp-tools) → Create API endpoints for auth
+3. Frontend UI Builder Agent (frontend-ui-builder) → Build login/signup forms
+4. Design & Theme Agent (design-theme) → Apply theme to auth pages
+5. Accessibility & UX Audit Agent (accessibility-ux-audit) → Audit auth flow for WCAG compliance
+```
+
+---
+
+## Spec-Driven Development Workflow Reinforcement (Mandatory)
+
+All work MUST follow the Spec-Driven Development (SDD) workflow. This is a **non-negotiable requirement** that governs all implementation activities.
+
+### SDD Workflow Stages
+
+#### Stage 1: Specification (`/sp.specify`)
+**Requirement:** NO implementation may occur without an approved specification.
+
+**Process:**
+1. User provides feature description or requirement
+2. Claude creates or updates `specs/<feature>/spec.md`
+3. Specification MUST include:
+   - Clear feature description and user stories
+   - Acceptance criteria (testable conditions)
+   - API contracts (if backend work is involved)
+   - UI/UX requirements (if frontend work is involved)
+   - Security and performance requirements
+   - Out-of-scope items (explicitly excluded)
+4. User reviews and approves specification
+5. PHR created in `history/prompts/<feature>/` documenting specification work
+
+**Enforcement:** Implementation without an approved spec is a **critical violation**.
+
+#### Stage 2: Planning (`/sp.plan`)
+**Requirement:** NO implementation may occur without an approved architectural plan.
+
+**Process:**
+1. Claude reads the approved `specs/<feature>/spec.md`
+2. Claude creates `specs/<feature>/plan.md` following Architect Guidelines
+3. Plan MUST include:
+   - Agent-skill mappings for all work (using the Agent-Skill Enforcement Matrix)
+   - Architectural decisions with rationale
+   - API contracts and data models
+   - Technology choices and trade-offs
+   - Risk analysis and mitigation strategies
+   - Testing strategy
+4. Claude identifies architecturally significant decisions and suggests ADRs
+5. User reviews and approves plan
+6. PHR created in `history/prompts/<feature>/` documenting planning work
+
+**Enforcement:** Implementation without an approved plan is a **critical violation**.
+
+#### Stage 3: Task Generation (`/sp.tasks`)
+**Requirement:** NO implementation may occur without approved, testable tasks.
+
+**Process:**
+1. Claude reads approved `specs/<feature>/spec.md` and `specs/<feature>/plan.md`
+2. Claude creates `specs/<feature>/tasks.md` with dependency-ordered tasks
+3. Each task MUST include:
+   - Clear, actionable description
+   - Agent-skill pairing (from Agent-Skill Enforcement Matrix)
+   - Acceptance criteria (testable conditions)
+   - Test cases (unit, integration, e2e as applicable)
+   - Dependencies on other tasks
+4. User reviews and approves tasks
+5. PHR created in `history/prompts/<feature>/` documenting task generation work
+
+**Enforcement:** Implementation without approved tasks is a **critical violation**.
+
+#### Stage 4: Implementation (`/sp.implement`)
+**Requirement:** Implementation MUST follow approved tasks exactly.
+
+**Process:**
+1. Claude reads approved `specs/<feature>/tasks.md`
+2. For each task:
+   - Identify the agent-skill pairing from the task definition
+   - Read the corresponding SKILL.md file
+   - Follow the skill's process steps
+   - Implement the smallest viable change
+   - Run tests and verify acceptance criteria
+   - Create PHR documenting implementation work
+3. If deviations from the plan are needed:
+   - STOP implementation
+   - Document the deviation and rationale
+   - Ask user for approval to update the plan
+   - Update plan and tasks before continuing
+4. After all tasks complete, run full test suite
+5. Create final PHR documenting implementation completion
+
+**Enforcement:** Implementation that deviates from approved tasks without user consent is a **critical violation**.
+
+### SDD Enforcement Rules
+
+#### Rule 1: No Manual Coding Without Spec
+Claude SHALL NOT write code, create files, or modify implementations unless:
+1. An approved specification exists in `specs/<feature>/spec.md`
+2. An approved plan exists in `specs/<feature>/plan.md`
+3. Approved tasks exist in `specs/<feature>/tasks.md`
+4. The current work directly implements an approved task
+
+**Exception:** Exploratory work explicitly requested by the user (e.g., "investigate this bug") does not require a spec, but findings MUST be documented in a PHR.
+
+#### Rule 2: Agent-Skill Alignment in All Stages
+At every SDD stage (spec, plan, tasks, implementation), Claude MUST:
+1. Identify which agents will be involved
+2. Declare the agent-skill pairings using the Agent-Skill Enforcement Matrix
+3. Read the relevant SKILL.md files before proceeding
+4. Follow the skill's process steps during execution
+
+**Failure to align agent-skill pairings is a specification violation.**
+
+#### Rule 3: PHR Creation is Mandatory
+After completing work at ANY SDD stage, Claude MUST create a Prompt History Record (PHR):
+- Specification work → PHR in `history/prompts/<feature>/`
+- Planning work → PHR in `history/prompts/<feature>/`
+- Task generation → PHR in `history/prompts/<feature>/`
+- Implementation work → PHR in `history/prompts/<feature>/`
+- General work → PHR in `history/prompts/general/`
+
+**Failure to create PHRs is a documentation violation.**
+
+#### Rule 4: ADR Suggestions for Significant Decisions
+When architecturally significant decisions are made (typically during planning), Claude MUST:
+1. Run the three-part ADR significance test:
+   - Impact: Does this have long-term consequences?
+   - Alternatives: Were multiple viable options considered?
+   - Scope: Is this cross-cutting and influential to system design?
+2. If ALL three are true, suggest:
+   ```
+   📋 Architectural decision detected: [brief description]
+   Document reasoning and tradeoffs? Run `/sp.adr [decision-title]`
+   ```
+3. Wait for user consent; NEVER auto-create ADRs
+
+**Failure to suggest ADRs for significant decisions is a documentation violation.**
+
+---
+
+## Violation Consequences and Remediation (Mandatory)
+
+This section defines the consequences of violating the rules established in this document and the required remediation steps.
+
+### Violation Categories
+
+#### Critical Violations
+These violations compromise the integrity of the Spec-Driven Development process:
+
+1. **Implementation Without Approved Spec**
+   - Consequence: All work MUST be discarded
+   - Remediation: Create spec, get approval, restart implementation
+
+2. **Implementation Without Approved Plan**
+   - Consequence: All work MUST be discarded
+   - Remediation: Create plan, get approval, restart implementation
+
+3. **Implementation Without Approved Tasks**
+   - Consequence: All work MUST be discarded
+   - Remediation: Create tasks, get approval, restart implementation
+
+4. **Incorrect Agent-Skill Pairing**
+   - Consequence: Implementation MUST be rejected and redone with correct agent
+   - Remediation: Identify correct agent from matrix, read SKILL.md, re-implement
+
+5. **Skill File Not Read Before Implementation**
+   - Consequence: Implementation MUST be reviewed against skill file; non-compliant work rejected
+   - Remediation: Read SKILL.md, verify compliance, fix violations
+
+#### Documentation Violations
+These violations compromise traceability and knowledge capture:
+
+1. **Missing PHR After Work Completion**
+   - Consequence: Work is considered incomplete
+   - Remediation: Create PHR immediately with full context
+
+2. **Missing ADR Suggestion for Significant Decision**
+   - Consequence: Architectural decision is undocumented
+   - Remediation: Identify decision, suggest ADR creation to user
+
+3. **Agent-Skill Pairing Not Declared in Planning**
+   - Consequence: Plan is considered incomplete
+   - Remediation: Update plan with explicit agent-skill declarations
+
+#### Responsibility Violations
+These violations compromise agent specialization and separation of concerns:
+
+1. **Responsibility Mixing Between Agents**
+   - Consequence: Work MUST be split and reassigned to correct agents
+   - Remediation: Identify correct agents, redistribute work, re-implement
+
+2. **Frontend Agent Implementing Backend Logic**
+   - Consequence: Backend logic MUST be removed and re-implemented by Backend Systems Agent
+   - Remediation: Extract backend logic, create backend tasks, implement with correct agent
+
+3. **Backend Agent Implementing Frontend UI**
+   - Consequence: Frontend UI MUST be removed and re-implemented by appropriate Frontend Agent
+   - Remediation: Extract UI logic, create frontend tasks, implement with correct agent
+
+### Remediation Process
+
+When a violation is detected:
+
+1. **Immediate Stop**
+   - STOP all current work immediately
+   - Do not proceed with implementation
+
+2. **Violation Assessment**
+   - Identify the violation category (critical, documentation, responsibility)
+   - Determine the scope of affected work
+
+3. **User Notification**
+   - Inform user of the violation clearly and concisely
+   - Explain the consequence and required remediation
+   - Provide a remediation plan
+
+4. **Remediation Execution**
+   - Follow the remediation steps for the violation category
+   - Verify compliance with all rules before proceeding
+   - Document remediation in a PHR
+
+5. **Validation**
+   - Verify that remediation fully addresses the violation
+   - Confirm all rules are now being followed
+   - Resume work only after validation passes
+
+### Prevention Strategies
+
+To prevent violations:
+
+1. **Pre-Implementation Checklist**
+   - [ ] Approved spec exists in `specs/<feature>/spec.md`
+   - [ ] Approved plan exists in `specs/<feature>/plan.md`
+   - [ ] Approved tasks exist in `specs/<feature>/tasks.md`
+   - [ ] Correct agent identified from Agent-Skill Enforcement Matrix
+   - [ ] SKILL.md file read and understood
+   - [ ] Agent-skill pairing declared in planning documents
+
+2. **During Implementation Checklist**
+   - [ ] Following skill's process steps exactly
+   - [ ] Staying within agent's responsibility domain
+   - [ ] Not mixing responsibilities with other agents
+   - [ ] Implementing smallest viable change
+   - [ ] Running tests and verifying acceptance criteria
+
+3. **Post-Implementation Checklist**
+   - [ ] All acceptance criteria met
+   - [ ] Tests passing
+   - [ ] PHR created and filed correctly
+   - [ ] ADR suggested if significant decision made
+   - [ ] No unresolved placeholders in documentation
+
+---
+
+## Summary of Mandatory Requirements
+
+This section summarizes all mandatory requirements that Claude MUST follow without exception.
+
+### Agent Usage Requirements
+1. **MUST** use the correct agent from the Agent-Skill Enforcement Matrix for each task
+2. **MUST** read the corresponding SKILL.md file before implementation
+3. **MUST** follow the skill's process steps exactly as documented
+4. **MUST** declare agent-skill pairings explicitly in all planning and implementation work
+5. **MUST** NOT mix responsibilities between agents
+
+### Spec-Driven Development Requirements
+1. **MUST** create and get approval for specification before implementation
+2. **MUST** create and get approval for architectural plan before implementation
+3. **MUST** create and get approval for tasks before implementation
+4. **MUST** implement only what is defined in approved tasks
+5. **MUST** seek user approval before deviating from approved plans
+
+### Documentation Requirements
+1. **MUST** create PHR after completing work at any SDD stage
+2. **MUST** suggest ADR for architecturally significant decisions
+3. **MUST** document agent-skill pairings in all planning documents
+4. **MUST** ensure no unresolved placeholders in documentation
+
+### Quality Requirements
+1. **MUST** implement smallest viable change
+2. **MUST** write tests and verify acceptance criteria
+3. **MUST** handle errors gracefully with clear messages
+4. **MUST** validate outputs for correctness and relevance
+5. **MUST** never hardcode secrets or sensitive data
+
+### Enforcement Requirements
+1. **MUST** stop immediately when a violation is detected
+2. **MUST** notify user of violations and provide remediation plan
+3. **MUST** follow remediation process before resuming work
+4. **MUST** validate compliance before proceeding
+
+**These requirements are non-negotiable and apply to all work performed by Claude.**
