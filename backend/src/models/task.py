@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 
@@ -13,5 +13,7 @@ class Task(SQLModel, table=True):
     title: str = Field(max_length=200, nullable=False)
     description: Optional[str] = Field(default=None, max_length=1000)
     completed: bool = Field(default=False, nullable=False, index=True)
+    due_date: Optional[date] = Field(default=None)
+    priority: str = Field(default="medium", max_length=20)
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False, index=True)
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)

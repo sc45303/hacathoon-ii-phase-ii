@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { ChatProvider } from "@/providers/ChatProvider";
 // import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { ChatGlobalWrapper } from "@/components/chat/ChatGlobalWrapper";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -61,11 +63,14 @@ export default function RootLayout({
       <body>
         {/* <ThemeProvider defaultTheme="system"> */}
         <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <div className="flex-1">{children}</div>
-            <Footer />
-          </div>
+          <ChatProvider>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <div className="flex-1">{children}</div>
+              <Footer />
+            </div>
+            <ChatGlobalWrapper />
+          </ChatProvider>
         </AuthProvider>
         {/* </ThemeProvider> */}
       </body>

@@ -1,0 +1,62 @@
+{
+  "name": "list_tasks",
+  "description": "List all tasks for the authenticated user. Supports filtering by completion status.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "filter": {
+        "type": "string",
+        "description": "Filter tasks by completion status",
+        "enum": ["all", "completed", "incomplete"],
+        "default": "all"
+      }
+    },
+    "required": []
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the operation succeeded"
+      },
+      "tasks": {
+        "type": "array",
+        "description": "List of tasks matching the filter",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "Unique task ID"
+            },
+            "title": {
+              "type": "string",
+              "description": "Task title"
+            },
+            "description": {
+              "type": "string",
+              "description": "Task description"
+            },
+            "completed": {
+              "type": "boolean",
+              "description": "Task completion status"
+            },
+            "created_at": {
+              "type": "string",
+              "description": "Task creation timestamp"
+            }
+          }
+        }
+      },
+      "count": {
+        "type": "integer",
+        "description": "Total number of tasks returned"
+      },
+      "message": {
+        "type": "string",
+        "description": "User-friendly message describing the results"
+      }
+    }
+  }
+}

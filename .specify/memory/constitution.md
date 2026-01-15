@@ -261,3 +261,323 @@ For day-to-day development guidance, refer to:
 - `/specs/<feature>/` for feature-specific requirements
 
 **Version**: 1.0.0 | **Ratified**: 2026-01-08 | **Last Amended**: 2026-01-08
+
+---
+
+# Phase III – Todo AI Chatbot Constitutional Extension
+
+## Phase III Scope Declaration
+
+### Objective
+
+Phase III SHALL establish an AI-powered Todo chatbot that enables natural language task management through conversational interfaces. This phase extends Phase II capabilities with intelligent agent-based interactions while maintaining all Phase II constitutional requirements.
+
+### Mandatory Development Framework
+
+The following development framework is REQUIRED and SHALL NOT be substituted:
+
+- **Agentic Dev Stack Workflow**: All development MUST follow the prescribed agentic workflow
+- **Spec-Kit Plus**: All specifications MUST be authored using Spec-Kit Plus templates and processes
+- **Claude Code**: All implementation MUST be executed via Claude Code with explicit agent invocation
+
+### Prohibition of Manual Coding
+
+Manual coding outside the specification-driven workflow is PROHIBITED. All code generation MUST:
+- Reference approved specifications in `/specs/`
+- Be executed through Claude Code with proper agent-skill alignment
+- Follow the mandatory development workflow without deviation
+
+**Rationale**: Phase III introduces conversational AI complexity that requires rigorous specification adherence to prevent architectural drift and ensure maintainable, testable implementations.
+
+## Development Workflow Enforcement
+
+### Mandatory Execution Order
+
+All Phase III development MUST follow this execution order without exception:
+
+1. **Specification Authoring** (Spec-Kit Plus)
+   - Feature requirements documented in `/specs/<feature>/spec.md`
+   - User stories, acceptance criteria, and API contracts defined
+   - Approval obtained before proceeding
+
+2. **Plan Generation**
+   - Architectural plan created in `/specs/<feature>/plan.md`
+   - Agent-skill mappings declared
+   - Technology choices and trade-offs documented
+   - Approval obtained before proceeding
+
+3. **Task Decomposition**
+   - Testable tasks created in `/specs/<feature>/tasks.md`
+   - Dependencies and acceptance criteria defined
+   - Agent-skill pairings assigned to each task
+   - Approval obtained before proceeding
+
+4. **Implementation via Claude Code**
+   - Tasks executed in dependency order
+   - Proper agents invoked with required skills
+   - Tests run and acceptance criteria verified
+
+5. **Review & Iteration**
+   - Implementation reviewed against specifications
+   - Deviations documented and approved
+   - Specifications updated to reflect approved changes
+
+### Constitutional Violations
+
+The following actions constitute constitutional violations:
+
+- **Deviation from Execution Order**: Skipping or reordering workflow stages
+- **Implementation Without Approved Spec**: Writing code before specification approval
+- **Manual Coding**: Implementing features outside Claude Code workflow
+- **Agent-Skill Misalignment**: Using incorrect agents or omitting required skills
+- **Undocumented Deviations**: Changing implementation without updating specifications
+
+**Consequence**: All work produced in violation of this workflow is INVALID and MUST be discarded.
+
+## Architectural Mandates (Phase III)
+
+### Required Architecture
+
+Phase III MUST implement the following architecture without substitution:
+
+#### Backend Architecture
+
+- **Stateless FastAPI Backend**: All API endpoints MUST be stateless; no server-side session storage
+- **MCP Server Implementation**: MUST use Official MCP SDK for all tool implementations
+- **OpenAI Agents SDK**: MUST be used for agent reasoning and orchestration
+- **Database-Persisted State**: All state (tasks, conversations, messages) MUST persist in Neon PostgreSQL
+
+#### Frontend Architecture
+
+- **ChatKit UI**: ChatKit MUST be the sole frontend interface for Phase III
+- **No Alternative Frontends**: Custom chat UIs or alternative interfaces are PROHIBITED
+
+### Architectural Prohibitions
+
+The following architectural patterns are PROHIBITED:
+
+1. **In-Memory Server State**: Server MUST NOT store conversation state in memory
+2. **Direct Database Access from Frontend**: Frontend MUST NOT query database directly
+3. **Tool Logic Outside MCP Boundaries**: All tool logic MUST be encapsulated in MCP tools
+4. **Stateful API Design**: APIs MUST NOT rely on server-side session state
+
+**Rationale**: Stateless architecture ensures scalability, enables server restarts without data loss, and maintains clear separation of concerns between frontend, backend, and data layers.
+
+## Agent & Skill Governance
+
+### Required Agents
+
+Phase III development MUST utilize the following agents for their designated domains:
+
+#### Conversational AI Architect Agent
+
+**Domain**: AI agent design, reasoning workflows, intent detection, tool selection logic, response quality optimization
+
+**Mandatory Skill**: `agent-behavior-reasoning`
+
+**Responsibilities**:
+- Design conversation flows and state machines
+- Implement intent detection strategies
+- Define tool selection logic
+- Optimize response clarity and consistency
+- Prevent hallucinations through validation
+
+#### Backend Systems Agent
+
+**Domain**: Server-side architecture, MCP tool design, API implementation, database operations, infrastructure
+
+**Mandatory Skill**: `backend-mcp-tools`
+
+**Responsibilities**:
+- Design and implement MCP tools
+- Define tool contracts (inputs, outputs, validation)
+- Implement stateless backend logic
+- Handle database interactions
+- Implement error handling and validation
+
+### Agent Governance Rules
+
+The following rules are MANDATORY and constitute binding law:
+
+1. **Domain Exclusivity**: Each domain MUST be handled exclusively by its designated agent
+2. **Skill Requirement**: Skills are REQUIRED, not optional; agents MUST read and follow skill files
+3. **No Cross-Domain Execution**: Agents MUST NOT execute work outside their designated domain
+4. **Mandatory Agent Handoff**: Multi-domain tasks MUST involve explicit agent handoffs with documented boundaries
+5. **Agent-Skill Declaration**: All planning and implementation MUST explicitly declare agent-skill pairings
+
+**Violation Consequence**: Work executed by incorrect agents or without required skills is INVALID and MUST be rejected.
+
+## MCP Tool Constitutional Rules
+
+### Tool Implementation Requirements
+
+All task operations MUST be exposed via MCP tools. The following tools are constitutionally REQUIRED:
+
+1. **add_task**: Create new tasks with title, description, due date, priority
+2. **list_tasks**: Retrieve tasks with filtering and sorting capabilities
+3. **update_task**: Modify existing task properties
+4. **complete_task**: Mark tasks as completed
+5. **delete_task**: Remove tasks from the system
+
+### Tool Design Mandates
+
+All MCP tools MUST adhere to the following design mandates:
+
+#### Statelessness
+
+- Tools MUST operate statelessly with explicit inputs
+- Tools MUST NOT rely on server-side session state
+- Tools MUST NOT cache data in memory across requests
+
+#### State Persistence
+
+- All state modifications MUST persist to Neon PostgreSQL database
+- Tools MUST NOT maintain in-memory state
+- Database transactions MUST be used for atomic operations
+
+#### Agent Access Control
+
+- AI agents MAY ONLY modify tasks through MCP tools
+- Direct database manipulation by agents is PROHIBITED
+- All task operations MUST flow through the MCP tool layer
+
+#### Tool Contracts
+
+- Each tool MUST define clear contracts: name, inputs, outputs, validation rules
+- Tools MUST return structured responses: status, data payload, message
+- Tools MUST handle errors gracefully with actionable error messages
+
+**Rationale**: MCP tools provide a controlled, testable, and auditable interface between AI agents and the task management system, ensuring data integrity and security.
+
+## Chat & Conversation Rules
+
+### Stateless Request Cycle
+
+Each conversational request MUST follow this stateless cycle:
+
+1. **Load Conversation History**: Retrieve conversation history from database
+2. **Execute Agent Reasoning**: Process user input with OpenAI Agents SDK
+3. **Invoke MCP Tools**: Execute task operations through MCP tool layer
+4. **Store Messages and Tool Calls**: Persist conversation state to database
+5. **Return Response**: Deliver user-facing response
+
+### Server Restart Resilience
+
+- Server restarts MUST NOT affect conversation continuity
+- All conversation state MUST be recoverable from database
+- No conversation data MAY be lost due to server failures
+
+### Conversation Continuity Mandate
+
+Conversation continuity is MANDATORY. The system MUST:
+- Maintain conversation context across multiple turns
+- Preserve conversation history indefinitely (or per retention policy)
+- Enable users to resume conversations after arbitrary time periods
+- Ensure conversation IDs remain stable and persistent
+
+**Rationale**: Stateless design with database-persisted state ensures reliability, scalability, and user trust in the conversational interface.
+
+## Error Handling & Confirmation Law
+
+### User-Facing Confirmations
+
+All agent actions MUST return user-friendly confirmations that:
+- Clearly state what action was performed
+- Include relevant details (task title, status, etc.)
+- Use natural language appropriate for conversational interfaces
+- Provide actionable next steps when applicable
+
+### Graceful Error Handling
+
+The following error scenarios MUST be handled gracefully:
+
+#### Task Not Found
+
+- MUST return clear message indicating task does not exist
+- MUST suggest alternative actions (list tasks, create new task)
+- MUST NOT expose internal error details
+
+#### Invalid Requests
+
+- MUST validate all inputs before processing
+- MUST return specific validation error messages
+- MUST guide users toward correct input format
+
+#### System Errors
+
+- MUST log errors comprehensively for debugging
+- MUST return user-friendly error messages
+- MUST NOT expose stack traces or internal implementation details
+
+### Silent Failure Prohibition
+
+Silent failures are PROHIBITED. All errors MUST:
+- Be logged with sufficient context for debugging
+- Result in user-facing error messages
+- Trigger appropriate error recovery mechanisms
+
+**Rationale**: Conversational interfaces require exceptional error handling to maintain user trust and provide clear feedback for corrective actions.
+
+## Deployment & Security Mandates
+
+### ChatKit Domain Allowlist Requirement
+
+Production deployment MUST implement ChatKit domain allowlist:
+- Only approved ChatKit domains MAY access the MCP server
+- Unauthorized domains MUST be rejected at the network layer
+- Allowlist configuration MUST be environment-specific
+
+### Environment Variable Enforcement
+
+All configuration MUST be managed via environment variables:
+
+**Required Variables**:
+- `DATABASE_URL`: Neon PostgreSQL connection string
+- `BETTER_AUTH_SECRET`: Shared secret for JWT verification
+- `OPENAI_API_KEY`: OpenAI API key for agent reasoning
+- `MCP_SERVER_PORT`: MCP server listening port
+- `CHATKIT_ALLOWED_DOMAINS`: Comma-separated list of allowed ChatKit domains
+
+**Prohibitions**:
+- Hardcoded secrets in source code
+- Configuration values committed to version control
+- Production secrets in development environments
+
+### Production Deployment Restrictions
+
+Production deployment is PROHIBITED without:
+1. Approved ChatKit domain allowlist configuration
+2. All required environment variables properly configured
+3. Database migrations successfully applied
+4. Security audit of MCP tool implementations
+5. Load testing of conversational request cycle
+
+**Rationale**: Phase III introduces external AI services and conversational interfaces that require strict security controls to prevent unauthorized access and data breaches.
+
+## Phase III Governance
+
+### Constitutional Hierarchy
+
+Phase III constitutional rules extend and supplement Phase II rules. In case of conflict:
+1. Phase III rules take precedence for Phase III-specific features
+2. Phase II rules remain authoritative for shared infrastructure
+3. Conflicts MUST be resolved through constitutional amendment process
+
+### Compliance Enforcement
+
+All Phase III development MUST comply with:
+- Phase III constitutional rules (this document)
+- Phase II constitutional rules (preceding sections)
+- CLAUDE.md agent-skill enforcement rules
+- Spec-Kit Plus workflow requirements
+
+### Violation Remediation
+
+Constitutional violations MUST be remediated immediately:
+1. STOP all work immediately upon violation detection
+2. Assess violation category and scope
+3. Notify stakeholders of violation and consequences
+4. Execute remediation per CLAUDE.md violation procedures
+5. Validate compliance before resuming work
+
+**Version**: 1.1.0 | **Phase III Ratified**: 2026-01-13 | **Last Amended**: 2026-01-13

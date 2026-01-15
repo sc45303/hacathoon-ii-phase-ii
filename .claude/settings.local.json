@@ -13,7 +13,28 @@
       "Bash(npm run build)",
       "Bash(npm run lint)",
       "Bash(timeout:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Skill(sp.specify)",
+      "Bash(git fetch --all --prune)",
+      "Bash(if [ -d \"specs\" ])",
+      "Bash(then ls -1 specs)",
+      "Bash(else echo \"No specs directory found\")",
+      "Bash(fi)",
+      "Skill(sp.plan)",
+      "WebSearch",
+      "Bash(npm search:*)",
+      "Bash(npm view:*)",
+      "Bash(git clone:*)",
+      "Bash(bash:*)",
+      "Bash(python -m alembic revision:*)",
+      "Bash(alembic upgrade:*)",
+      "Bash(pytest:*)",
+      "Bash(npm run dev)",
+      "Bash(curl:*)",
+      "Bash(alembic revision:*)",
+      "Bash(python -m uvicorn src.main:app --reload --port 8000)",
+      "Bash(pip show:*)",
+      "Bash(python:*)"
     ]
   }
 }

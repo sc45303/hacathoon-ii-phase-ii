@@ -1,0 +1,364 @@
+openapi: 3.0.3
+info:
+  title: Todo AI Chatbot API
+  description: |
+    API specification for the Todo AI Chatbot conversational interface.
+    This API enables stateless conversational AI interactions with database-persisted state.
+  version: 1.0.0
+  contact:
+    name: Phase III Development Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server (TBD)
+
+tags:
+  - name: chat
+    description: Conversational AI endpoints
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      tags:
+        - chat
+      summary: Send message to AI chatbot
+      description: |
+        Stateless endpoint for conversational AI interaction.
+
+        **Flow**:
+        1. Load conversation history from database
+        2. Execute AI agent with full message history
+        3. Save user message and assistant response to database
+        4. Return assistant response
+
+        **Authentication**: Requires valid JWT token in Authorization header.
+        The user_id in the path must match the authenticated user from the JWT.
+      operationId: sendChatMessage
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Authenticated user ID (must match JWT token)
+          schema:
+            type: integer
+            example: 123
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              simpleMessage:
+                summary: Simple user message
+                value:
+                  message: "Hello, can you help me with my tasks?"
+              taskIntent:
+                summary: Task-related intent
+                value:
+                  message: "I need to add a new task for tomorrow"
+      responses:
+        '200':
+          description: Successful response from AI assistant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                greeting:
+                  summary: Greeting response
+                  value:
+                    response: "Hello! I'm your AI assistant. I can help you manage your tasks through natural conversation. What would you like to do?"
+                    conversation_id: 456
+                    timestamp: "2026-01-14T10:30:00Z"
+                taskAcknowledgment:
+                  summary: Task intent acknowledgment
+                  value:
+                    response: "I understand you want to add a new task for tomorrow. In Phase 1, I can acknowledge your intent, but task creation will be available in Phase 2. For now, I'm here to chat and help you plan!"
+                    conversation_id: 456
+                    timestamp: "2026-01-14T10:31:00Z"
+        '400':
+          description: Bad request (invalid input)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emptyMessage:
+                  summary: Empty message error
+                  value:
+                    error: "Bad Request"
+                    message: "Message content cannot be empty"
+                    status_code: 400
+        '401':
+          description: Unauthorized (missing or invalid JWT token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missingToken:
+                  summary: Missing JWT token
+                  value:
+                    error: "Unauthorized"
+                    message: "Missing or invalid authentication token"
+                    status_code: 401
+                userIdMismatch:
+                  summary: User ID mismatch
+                  value:
+                    error: "Unauthorized"
+                    message: "User ID in path does not match authenticated user"
+                    status_code: 401
+        '429':
+          description: Rate limit exceeded (AI provider rate limit)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                rateLimitExceeded:
+                  summary: Rate limit error
+                  value:
+                    error: "Rate Limit Exceeded"
+                    message: "AI provider rate limit reached. Please wait a moment and try again."
+                    status_code: 429
+                    retry_after: 60
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                aiProviderError:
+                  summary: AI provider error
+                  value:
+                    error: "Internal Server Error"
+                    message: "Failed to generate AI response. Please try again."
+                    status_code: 500
+
+  /api/{user_id}/conversations:
+    get:
+      tags:
+        - chat
+      summary: List user conversations
+      description: |
+        Retrieve all conversations for the authenticated user.
+        Conversations are ordered by most recent activity.
+
+        **Note**: This endpoint is optional for Phase 1 and may be deferred to Phase 2.
+      operationId: listConversations
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Authenticated user ID
+          schema:
+            type: integer
+            example: 123
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of conversations to return
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          required: false
+          description: Number of conversations to skip (for pagination)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token issued by Better Auth.
+        Include in Authorization header as: `Bearer <token>`
+
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: User message content
+          minLength: 1
+          maxLength: 10000
+          example: "Hello, can you help me with my tasks?"
+        conversation_id:
+          type: integer
+          description: |
+            Optional conversation ID to continue an existing conversation.
+            If not provided, the most recent conversation will be used or a new one created.
+          example: 456
+      example:
+        message: "I need to add a new task for tomorrow"
+
+    ChatResponse:
+      type: object
+      required:
+        - response
+        - conversation_id
+        - timestamp
+      properties:
+        response:
+          type: string
+          description: AI assistant response
+          example: "Hello! I'm your AI assistant. How can I help you today?"
+        conversation_id:
+          type: integer
+          description: Conversation ID for this exchange
+          example: 456
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp (ISO 8601)
+          example: "2026-01-14T10:30:00Z"
+        metadata:
+          type: object
+          description: Optional metadata about the response
+          properties:
+            model:
+              type: string
+              description: AI model used for response
+              example: "gemini-pro"
+            token_count:
+              type: integer
+              description: Estimated token count for this exchange
+              example: 150
+      example:
+        response: "I understand you want to add a task. Task management will be available in Phase 2!"
+        conversation_id: 456
+        timestamp: "2026-01-14T10:30:00Z"
+
+    ConversationListResponse:
+      type: object
+      required:
+        - conversations
+        - total
+      properties:
+        conversations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationSummary'
+        total:
+          type: integer
+          description: Total number of conversations for this user
+          example: 5
+        limit:
+          type: integer
+          description: Limit applied to this request
+          example: 20
+        offset:
+          type: integer
+          description: Offset applied to this request
+          example: 0
+
+    ConversationSummary:
+      type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - message_count
+      properties:
+        id:
+          type: integer
+          description: Conversation ID
+          example: 456
+        title:
+          type: string
+          description: Optional conversation title
+          example: "Task Planning Discussion"
+        created_at:
+          type: string
+          format: date-time
+          description: Conversation creation timestamp
+          example: "2026-01-14T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last message timestamp
+          example: "2026-01-14T10:30:00Z"
+        message_count:
+          type: integer
+          description: Number of messages in this conversation
+          example: 10
+        last_message_preview:
+          type: string
+          description: Preview of the last message (first 100 characters)
+          example: "I understand you want to add a task. Task management will be available in Phase 2!"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - status_code
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "Bad Request"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Message content cannot be empty"
+        status_code:
+          type: integer
+          description: HTTP status code
+          example: 400
+        details:
+          type: object
+          description: Optional additional error details
+          additionalProperties: true
+        retry_after:
+          type: integer
+          description: Seconds to wait before retrying (for rate limit errors)
+          example: 60
+      example:
+        error: "Rate Limit Exceeded"
+        message: "AI provider rate limit reached. Please wait a moment and try again."
+        status_code: 429
+        retry_after: 60
+
+  examples:
+    ChatRequestExample:
+      value:
+        message: "Hello, can you help me with my tasks?"
+
+    ChatResponseExample:
+      value:
+        response: "Hello! I'm your AI assistant. I can help you manage your tasks through natural conversation. What would you like to do?"
+        conversation_id: 456
+        timestamp: "2026-01-14T10:30:00Z"

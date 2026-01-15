@@ -1,309 +1,236 @@
-# Task CRUD API - Backend
+---
+title: TaskFlow API
+emoji: ✅
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+license: mit
+---
 
-FastAPI backend for the Task Manager application with full CRUD operations, filtering, and sorting.
+# TaskFlow Backend API
+
+FastAPI backend for TaskFlow task management application with AI chatbot integration.
+
+## Features
+
+- User authentication with JWT and Better Auth
+- Task CRUD operations
+- **AI Chatbot Assistant** - Conversational AI for task management
+- PostgreSQL database with SQLModel ORM
+- RESTful API design
+- Multi-turn conversation support with context management
+- Intent recognition for todo-related requests
 
 ## Tech Stack
 
-- **Python**: 3.11+
-- **FastAPI**: 0.104+ (Web framework)
-- **SQLModel**: 0.0.14+ (ORM)
-- **Alembic**: 1.13.0 (Database migrations)
-- **PostgreSQL**: Neon Serverless or local PostgreSQL
-- **Pydantic**: 2.x (Data validation)
+- **Framework**: FastAPI 0.104.1
+- **ORM**: SQLModel 0.0.14
+- **Database**: PostgreSQL (Neon Serverless)
+- **Authentication**: Better Auth + JWT
+- **AI Provider**: Google Gemini (gemini-pro)
+- **Migrations**: Alembic 1.13.0
 
-## Project Structure
+## Environment Variables
 
-```
-backend/
-├── src/
-│   ├── api/
-│   │   ├── deps.py           # Dependency injection (DB session, auth stub)
-│   │   └── routes/
-│   │       └── tasks.py      # Task CRUD endpoints
-│   ├── core/
-│   │   ├── config.py         # Application settings
-│   │   └── database.py       # Database connection
-│   ├── models/
-│   │   ├── user.py           # User model (stub)
-│   │   └── task.py           # Task model
-│   ├── schemas/
-│   │   └── task.py           # Pydantic schemas
-│   ├── services/
-│   │   └── task_service.py   # Business logic
-│   └── main.py               # FastAPI application
-├── alembic/
-│   ├── versions/
-│   │   └── 001_initial.py    # Initial migration
-│   └── env.py                # Alembic configuration
-├── tests/                     # Test directory (to be implemented)
-├── .env                       # Environment variables
-├── .env.example               # Environment template
-├── alembic.ini                # Alembic configuration
-└── requirements.txt           # Python dependencies
-```
+Configure these in your `.env` file:
+
+### Database
+- `DATABASE_URL`: PostgreSQL connection string (Neon or local)
+
+### Application
+- `APP_NAME`: Application name (default: "Task CRUD API")
+- `DEBUG`: Debug mode (default: True)
+- `CORS_ORIGINS`: Allowed CORS origins (default: "http://localhost:3000")
+
+### Authentication
+- `BETTER_AUTH_SECRET`: Secret key for Better Auth (required)
+- `JWT_ALGORITHM`: JWT algorithm (default: "HS256")
+- `JWT_EXPIRATION_DAYS`: Token expiration in days (default: 7)
+
+### AI Provider Configuration
+- `AI_PROVIDER`: AI provider to use (default: "gemini")
+- `GEMINI_API_KEY`: Google Gemini API key (required if using Gemini)
+- `OPENROUTER_API_KEY`: OpenRouter API key (optional)
+- `COHERE_API_KEY`: Cohere API key (optional)
+
+### Conversation Settings
+- `MAX_CONVERSATION_MESSAGES`: Maximum messages to keep in history (default: 20)
+- `MAX_CONVERSATION_TOKENS`: Maximum tokens to keep in history (default: 8000)
 
 ## Setup Instructions
 
 ### 1. Install Dependencies
 
 ```bash
-cd backend
 pip install -r requirements.txt
 ```
 
 ### 2. Configure Environment
 
-Copy `.env.example` to `.env` and configure:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
+Create a `.env` file in the `backend/` directory:
 
 ```env
-# For Neon PostgreSQL (recommended)
-DATABASE_URL=postgresql://user:password@ep-xxx.neon.tech/dbname?sslmode=require
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/todo_db
 
-# OR for local PostgreSQL
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/todo_db
-
+# Application
 APP_NAME=Task CRUD API
 DEBUG=True
 CORS_ORIGINS=http://localhost:3000
 
-# Authentication (REQUIRED)
-BETTER_AUTH_SECRET=<generate-32-char-random-string>
+# Authentication
+BETTER_AUTH_SECRET=your_secret_key_here
 JWT_ALGORITHM=HS256
 JWT_EXPIRATION_DAYS=7
-```
 
-**Generate BETTER_AUTH_SECRET:**
-```bash
-# Use Python to generate a secure random secret
-python -c "import secrets; print(secrets.token_urlsafe(32))"
+# AI Provider
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your_gemini_api_key_here
 
-# IMPORTANT: Use the SAME secret in both backend/.env and frontend/.env.local
+# Conversation Settings
+MAX_CONVERSATION_MESSAGES=20
+MAX_CONVERSATION_TOKENS=8000
 ```
 
 ### 3. Run Database Migrations
 
 ```bash
-# Apply migrations to create tables
-python -m alembic upgrade head
+alembic upgrade head
 ```
 
-### 4. Start Development Server
+### 4. Start the Server
 
 ```bash
-# Start with auto-reload
-uvicorn src.main:app --reload
-
-# Server runs at http://localhost:8000
+uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+The API will be available at `http://localhost:8000`
+
+## API Documentation
+
+Once running, visit:
+- **Interactive Docs**: `http://localhost:8000/docs`
+- **ReDoc**: `http://localhost:8000/redoc`
 
 ## API Endpoints
 
 ### Authentication
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/signup` | Register new user account | No |
-| POST | `/api/auth/signin` | Authenticate and receive JWT token | No |
-| GET | `/api/auth/me` | Get current user profile | Yes |
+- `POST /api/auth/signup` - Register new user
+- `POST /api/auth/login` - Login user
 
 ### Tasks
+- `GET /api/{user_id}/tasks` - Get all tasks for user
+- `POST /api/{user_id}/tasks` - Create new task
+- `GET /api/{user_id}/tasks/{task_id}` - Get specific task
+- `PUT /api/{user_id}/tasks/{task_id}` - Update task
+- `DELETE /api/{user_id}/tasks/{task_id}` - Delete task
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/tasks` | List tasks with filtering and sorting | Yes |
-| POST | `/api/tasks` | Create a new task | Yes |
-| GET | `/api/tasks/{id}` | Get a single task | Yes |
-| PUT | `/api/tasks/{id}` | Update task (replace all fields) | Yes |
-| PATCH | `/api/tasks/{id}` | Partially update task | Yes |
-| DELETE | `/api/tasks/{id}` | Delete a task | Yes |
+### AI Chat (New in Phase 1)
+- `POST /api/{user_id}/chat` - Send message to AI assistant
 
-### Query Parameters (GET /api/tasks)
-
-- `completed`: Filter by status (true/false/null for all)
-- `sort`: Sort field (created_at or updated_at)
-- `order`: Sort order (asc or desc)
-- `limit`: Maximum number of results
-- `offset`: Number of results to skip
-
-### Example Requests
-
-**Sign Up:**
-```bash
-curl -X POST http://localhost:8000/api/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "SecurePass123",
-    "name": "John Doe"
-  }'
-```
-
-**Sign In:**
-```bash
-curl -X POST http://localhost:8000/api/auth/signin \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "SecurePass123"
-  }'
-```
-
-**Get Current User (requires JWT token):**
-```bash
-curl http://localhost:8000/api/auth/me \
-  -H "Authorization: Bearer <your-jwt-token>"
-```
-
-**Create Task (requires JWT token):**
-```bash
-curl -X POST http://localhost:8000/api/tasks \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your-jwt-token>" \
-  -d '{"title": "Buy groceries", "description": "Milk, eggs, bread"}'
-```
-
-**List Active Tasks:**
-```bash
-curl "http://localhost:8000/api/tasks?completed=false&sort=created_at&order=desc" \
-  -H "Authorization: Bearer <your-jwt-token>"
-```
-
-**Toggle Completion:**
-```bash
-curl -X PATCH http://localhost:8000/api/tasks/1 \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your-jwt-token>" \
-  -d '{"completed": true}'
-```
-
-## API Documentation
-
-Interactive API documentation available at:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-## Database Schema
-
-### Tasks Table
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INTEGER | Primary key |
-| user_id | INTEGER | Foreign key to users |
-| title | VARCHAR(200) | Task title (required) |
-| description | VARCHAR(1000) | Task description (optional) |
-| completed | BOOLEAN | Completion status |
-| created_at | DATETIME | Creation timestamp |
-| updated_at | DATETIME | Last update timestamp |
-
-**Indexes:**
-- `ix_tasks_user_id` - User lookup
-- `ix_tasks_completed` - Status filtering
-- `ix_tasks_user_id_completed` - Combined user + status
-- `ix_tasks_created_at` - Date sorting
-
-## Authentication
-
-**Status**: JWT-based authentication with Better Auth integration
-
-### Authentication Flow
-
-1. **User Registration** (`POST /api/auth/signup`):
-   - Validates email format (RFC 5322)
-   - Validates password strength (min 8 chars, uppercase, lowercase, number)
-   - Hashes password with bcrypt (cost factor 12)
-   - Creates user account in database
-   - Returns user profile (no token issued)
-
-2. **User Sign In** (`POST /api/auth/signin`):
-   - Verifies email and password
-   - Creates JWT token with 7-day expiration
-   - Token includes: user_id (sub), email, issued_at (iat), expiration (exp)
-   - Returns token and user profile
-
-3. **Protected Endpoints**:
-   - All `/api/tasks/*` endpoints require JWT authentication
-   - Client must include `Authorization: Bearer <token>` header
-   - Backend verifies token signature using `BETTER_AUTH_SECRET`
-   - Extracts user_id from token and filters all queries by authenticated user
-   - Returns 401 Unauthorized for missing, invalid, or expired tokens
-
-### Security Features
-
-- **Stateless Authentication**: No server-side session storage
-- **User Data Isolation**: All task queries automatically filtered by authenticated user_id
-- **Password Security**: Bcrypt hashing with cost factor 12
-- **Token Expiration**: 7-day JWT expiration (configurable via JWT_EXPIRATION_DAYS)
-- **Shared Secret**: BETTER_AUTH_SECRET must match between frontend and backend
-- **Error Handling**: Generic error messages for invalid credentials (prevents user enumeration)
-
-### Token Structure
-
+#### Chat Request Body
 ```json
 {
-  "sub": "123",           // User ID
-  "email": "user@example.com",
-  "iat": 1704067200,      // Issued at timestamp
-  "exp": 1704672000,      // Expiration timestamp (7 days)
-  "iss": "better-auth"    // Issuer
+  "message": "Can you help me organize my tasks?",
+  "conversation_id": 123,  // Optional: null for new conversation
+  "temperature": 0.7       // Optional: 0.0 to 1.0
 }
 ```
 
-### Error Responses
+#### Chat Response
+```json
+{
+  "conversation_id": 123,
+  "message": "I'd be happy to help you organize your tasks!",
+  "role": "assistant",
+  "timestamp": "2026-01-14T10:30:00Z",
+  "token_count": 25,
+  "model": "gemini-pro"
+}
+```
 
-- **401 TOKEN_EXPIRED**: JWT token has expired
-- **401 TOKEN_INVALID**: Invalid signature or malformed token
-- **401 TOKEN_MISSING**: No Authorization header provided
-- **401 INVALID_CREDENTIALS**: Email or password incorrect (generic message)
-- **409 EMAIL_EXISTS**: Email already registered during signup
+## AI Chatbot Features
+
+### Phase 1 (Current)
+- ✅ Natural conversation with AI assistant
+- ✅ Multi-turn conversations with context retention
+- ✅ Intent recognition for todo-related requests
+- ✅ Conversation history persistence
+- ✅ Automatic history trimming (20 messages / 8000 tokens)
+- ✅ Free-tier AI provider support (Gemini)
+
+### Phase 2 (Coming Soon)
+- 🔄 MCP tools for task CRUD operations
+- 🔄 AI can directly create, update, and delete tasks
+- 🔄 Natural language task management
+
+## Error Handling
+
+The API returns standard HTTP status codes:
+
+- `200 OK` - Request successful
+- `400 Bad Request` - Invalid request data
+- `401 Unauthorized` - Authentication required or failed
+- `404 Not Found` - Resource not found
+- `429 Too Many Requests` - Rate limit exceeded
+- `500 Internal Server Error` - Server error
+
+## Database Schema
+
+### Users Table
+- `id`: Primary key
+- `email`: Unique email address
+- `name`: User's name
+- `password`: Hashed password
+- `created_at`, `updated_at`: Timestamps
+
+### Tasks Table
+- `id`: Primary key
+- `user_id`: Foreign key to users
+- `title`: Task title
+- `description`: Task description
+- `completed`: Boolean status
+- `created_at`, `updated_at`: Timestamps
+
+### Conversation Table (New)
+- `id`: Primary key
+- `user_id`: Foreign key to users
+- `title`: Conversation title
+- `created_at`, `updated_at`: Timestamps
+
+### Message Table (New)
+- `id`: Primary key
+- `conversation_id`: Foreign key to conversation
+- `role`: "user" or "assistant"
+- `content`: Message text
+- `timestamp`: Message timestamp
+- `token_count`: Token count for the message
 
 ## Development
 
-### Create New Migration
-
-```bash
-python -m alembic revision --autogenerate -m "description"
-```
-
-### Rollback Migration
-
-```bash
-python -m alembic downgrade -1
-```
-
-### Run Tests (when implemented)
-
+### Running Tests
 ```bash
 pytest
 ```
 
-## Troubleshooting
+### Database Migrations
 
-### Database Connection Issues
-
-1. **Neon**: Ensure connection string includes `?sslmode=require`
-2. **Local PostgreSQL**: Verify PostgreSQL is running and database exists
-3. Check `.env` file has correct `DATABASE_URL`
-
-### Migration Errors
-
+Create a new migration:
 ```bash
-# Reset database (WARNING: deletes all data)
-python -m alembic downgrade base
-python -m alembic upgrade head
+alembic revision -m "description"
 ```
 
-## Next Steps
+Apply migrations:
+```bash
+alembic upgrade head
+```
 
-1. Implement JWT authentication (Spec 2)
-2. Add comprehensive test suite
-3. Add API rate limiting
-4. Implement pagination metadata
-5. Add task categories/tags
-6. Deploy to production (Vercel/Railway)
+Rollback migration:
+```bash
+alembic downgrade -1
+```
+
+## License
+
+MIT License

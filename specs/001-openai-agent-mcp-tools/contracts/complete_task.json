@@ -1,0 +1,62 @@
+{
+  "name": "complete_task",
+  "description": "Mark a task as completed. Accepts either a task ID (integer) or task title (string) to identify the task.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "task_identifier": {
+        "oneOf": [
+          {
+            "type": "integer",
+            "description": "Task ID"
+          },
+          {
+            "type": "string",
+            "description": "Task title (exact match)"
+          }
+        ],
+        "description": "Task ID or title to identify which task to complete"
+      }
+    },
+    "required": ["task_identifier"]
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether the task was marked as completed"
+      },
+      "task": {
+        "type": "object",
+        "description": "The updated task object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique task ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Task title"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "Task completion status (should be true)"
+          },
+          "updated_at": {
+            "type": "string",
+            "description": "Task update timestamp"
+          }
+        }
+      },
+      "message": {
+        "type": "string",
+        "description": "User-friendly confirmation message"
+      },
+      "error": {
+        "type": "string",
+        "description": "Error message if task not found or operation failed"
+      }
+    }
+  }
+}
